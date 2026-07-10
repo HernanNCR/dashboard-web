@@ -1,15 +1,24 @@
-// import { useState } from 'react'
-// import reactLogo from './assets/react.svg'
-// import viteLogo from './assets/vite.svg'
-// import heroImg from './assets/hero.png'
-import Dashboard from './components/Dashboard'
+import Dashboard from "./components/Dashboard";
+import TeamOne from "./components/TeamOne";
+import style from "./App.module.css";
+import TeamTwo from "./components/TeamTwo";
+import OthersComponents from "./components/OthersComponents";
 
 function App() {
-
   return (
-    
-    <Dashboard />
-  )
+    <div>
+      <Dashboard />
+      <OthersComponents/>
+
+      <div className={style.StyleTeams}>
+        <TeamOne/>
+        <TeamTwo/>
+      </div>
+      
+      
+
+    </div>
+  );
 }
 
-export default App
+export default App;

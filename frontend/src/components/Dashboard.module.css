@@ -1,0 +1,23 @@
+.bodyNav {
+  /* background-color: red; */
+  width: auto;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin: 50px 0px;
+}
+
+section{
+  margin: 30px 10px;
+}
+
+.Jornada{
+  width: 100%;
+  height: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+

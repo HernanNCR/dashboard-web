@@ -1,0 +1,45 @@
+.teamOne{
+    border: 1px solid black;
+
+    width: 100%;
+    height: auto;
+    margin: 10px;
+}
+
+input, select{
+    border: 1px solid gray;
+    border-radius: 5px;
+    width: 400px;
+    height: 45px;
+    padding: 0px 10px;
+}
+
+
+/* MODAL */
+
+.titleModal{
+    padding: 0px 35px;
+}
+
+.numberPlayer{
+    width: 70px;
+    text-align: center;
+    margin: 5px;
+}
+
+.modalTeam{
+    width: 100%;
+}
+
+.button{
+    background-color: lightblue;
+    padding: 10px 25px;
+    margin: 10px;
+    border-radius: 5px;
+    border: 1px solid black;
+    cursor: pointer;
+}
+.button::active{
+    background-color: rgb(3, 3, 88);
+    color: white;
+}
