@@ -43,3 +43,15 @@ input, select{
     background-color: rgb(3, 3, 88);
     color: white;
 }
+
+.nombreprueba{
+    color: red;
+    font-size: 80px;
+    font-weight: 600;
+    opacity: 1;
+}
+.botonprueba{
+    color: aliceblue;
+    background-color: blue;
+    padding: 10px 15px;
+}

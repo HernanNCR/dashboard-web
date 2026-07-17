@@ -12,7 +12,7 @@ function TeamOne() {
     nombreEquipo: string;
     logo: File | null;
     alineacion: string;
-  }
+  } 
 
   interface Jugador {
     nombre: string;
@@ -116,38 +116,37 @@ function TeamOne() {
         {conditionalInfo && (
           <>
             <h1 className={style.titleModal}>
-              Ingrese Nombre de los jugadores y número
-            </h1>
-            <br />
-            {Array.from({
-              length: Number(cantidadJugadores),
-            }).map((_, index) => (
-              <article key={index}>
-                <input
-                  type="text"
-                  placeholder={`Jugador ${index + 1}`}
-                  name={`Jugador ${index + 1}`}
-                  onChange={(e) =>
-                    guardarNombre(index, "nombre", e.target.value)
-                  }
-                />
-                <input
-                  type="text"
-                  className={style.numberPlayer}
-                  name={`Numero jugador ${index + 1}`}
-                  placeholder="22"
-                  onChange={(e) =>
-                    guardarNombre(index, "numero", e.target.value)
-                  }
-                />
-              </article>
-            ))}
+          Ingrese Nombre de los jugadores y número
+        </h1>
+        <br />
+        {Array.from({
+          length: Number(cantidadJugadores),
+        }).map((_, index) => (
+          <article key={index}>
+            <input
+              type="text"
+              placeholder={`Jugador ${index + 1}`}
+              name={`Jugador ${index + 1}`}
+              onChange={(e) => guardarNombre(index, "nombre", e.target.value)}
+            />
+            <input
+              type="text"
+              className={style.numberPlayer}
+              name={`Numero jugador ${index + 1}`}
+              placeholder="22"
+              onChange={(e) => guardarNombre(index, "numero", e.target.value)}
+            />
+          </article>
+        ))}
 
-            <button className={style.button} onClick={verjugadores}>
-              Guardar Información
-            </button>
+        <button className={style.button} onClick={verjugadores}>
+          Guardar Información
+        </button>
           </>
+          
         )}
+
+        
 
         {/* vista terciaria despues de guardar la informacion completa del equipo (se muestra toda la informacion) */}
         {!conditionalInfo && (
