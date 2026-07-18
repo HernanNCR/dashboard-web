@@ -28,6 +28,17 @@ export function setupSocket(server: HttpServer) {
 
     });
 
+    socket.on("actualizar-instruccion", (data) => {
+
+      console.log(data);
+
+      socket.broadcast.emit(
+        "nueva-instruccion",
+        data
+      );
+
+    });
+
 
     socket.on("disconnect", () => {
       console.log("Cliente desconectado");
