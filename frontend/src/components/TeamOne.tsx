@@ -1,7 +1,11 @@
 import { useState } from "react";
 import style from "./TeamOne.module.css";
+import { socket } from "../sockets/sockets";
 
 function TeamOne() {
+  // --------------- //
+  //   Equipo Local  //
+  // --------------- //
   const [Modal, setModal] = useState(true);
 
   // --------------------------------
@@ -11,8 +15,9 @@ function TeamOne() {
   interface Equipo {
     nombreEquipo: string;
     logo: File | null;
+    logoPreview: string;
     alineacion: string;
-  } 
+  }
 
   interface Jugador {
     nombre: string;
@@ -26,9 +31,10 @@ function TeamOne() {
   const [informacionTeamOne, setinformacionTeamOne] = useState<Equipo>({
     nombreEquipo: "",
     logo: null,
+    logoPreview: "",
     alineacion: "",
   });
-  // cantidadJuagdores sirve para guardar la cantidad total de los jugadores del equipo
+  // cantidadJugadores sirve para guardar la cantidad total de los jugadores del equipo
   const [cantidadJugadores, setcantidadJugadores] = useState({});
 
   // button es un condicional para poder ver o no ver el botón del siguiente paso del registro del equipo
@@ -37,9 +43,6 @@ function TeamOne() {
   // datosJugadores nos ayuda a guardar en arreglos la información de cada jugador
   const [datosJugadores, setDatosJugadores] = useState<Jugador[]>([]);
 
-  // conditionalInfo es un condicional para poder ver o no ver la información guardada del equipo local
-  const [conditionalInfo, setconditionalInfo] = useState(true);
-
   // ------------
   // Funciones
   // ------------
@@ -47,9 +50,29 @@ function TeamOne() {
   const InputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, files, type } = e.target;
 
+    if (type === "file" && files?.[0]) {
+      const archivo = files[0];
+      const reader = new FileReader();
+
+      
+      reader.onload = () => {
+        const base64 = reader.result as string;
+
+        setinformacionTeamOne((prev) => ({
+          ...prev,
+          logo: archivo,
+          logoPreview: base64,
+        }));
+      };
+
+      reader.readAsDataURL(archivo);
+
+      return;
+    }
+
     setinformacionTeamOne((prev) => ({
       ...prev,
-      [name]: type === "file" ? files?.[0] : value,
+      [name]: value,
     }));
   };
 
@@ -97,109 +120,60 @@ function TeamOne() {
     });
   };
 
-  // verjugadores muestra la informacion de los equipos y ayuda en la variable de setconditionalInfo
-  const verjugadores = () => {
-    console.log(informacionTeamOne);
-    console.log(datosJugadores);
+  // ----------------------- //
+  // INSTRUCCIONES GENERALES //
+  // ----------------------- //
 
-    setconditionalInfo(false);
+  // Boton para enviar mensaje a overlay
+  const Onclick = () => {
+    socket.emit("actualizar-overlay", {
+      mensaje: informacionTeamOne,
+      jugadoresLocal: datosJugadores,
+    });
   };
 
-  // --------
-  // VISTAS
-  // --------
+  // variable para cambio de opacidad en el marcador
+  var [instruccionOpacity, setinstruccionesOpacity] = useState(0);
 
-  // vista secundaria y se muestra dependiendo si ya agregaron la informacion completa
-  if (!Modal) {
-    return (
-      <section className={style.modalTeam}>
-        {conditionalInfo && (
-          <>
-            <h1 className={style.titleModal}>
-          Ingrese Nombre de los jugadores y número
-        </h1>
-        <br />
-        {Array.from({
-          length: Number(cantidadJugadores),
-        }).map((_, index) => (
-          <article key={index}>
-            <input
-              type="text"
-              placeholder={`Jugador ${index + 1}`}
-              name={`Jugador ${index + 1}`}
-              onChange={(e) => guardarNombre(index, "nombre", e.target.value)}
-            />
-            <input
-              type="text"
-              className={style.numberPlayer}
-              name={`Numero jugador ${index + 1}`}
-              placeholder="22"
-              onChange={(e) => guardarNombre(index, "numero", e.target.value)}
-            />
-          </article>
-        ))}
+  const cambiarValorDeInstruccion = () => {
+    if (instruccionOpacity === 0) {
+      setinstruccionesOpacity(1);
 
-        <button className={style.button} onClick={verjugadores}>
-          Guardar Información
-        </button>
-          </>
-          
-        )}
+      socket.emit("actualizar-instruccion", {
+        instrucciones: instruccionOpacity,
+      });
+    } else if (instruccionOpacity === 1) {
+      setinstruccionesOpacity(0);
 
-        
+      socket.emit("actualizar-instruccion", {
+        instrucciones: instruccionOpacity,
+      });
+    }
+  };
 
-        {/* vista terciaria despues de guardar la informacion completa del equipo (se muestra toda la informacion) */}
-        {!conditionalInfo && (
-          <article>
-            <p>Nombre Equipo: {informacionTeamOne.nombreEquipo}</p>
-            {informacionTeamOne.logo && (
-              <img
-                src={URL.createObjectURL(informacionTeamOne.logo)}
-                alt="Escudo del equipo"
-                width={300}
-              />
-            )}
-            <p>Alineación: {informacionTeamOne.alineacion}</p>
-            <br />
-            <p>Jugadores: </p>
-
-            {datosJugadores.length > 0 ? (
-              datosJugadores.map((item, index) => (
-                <p key={index + 1}>
-                  {item.nombre} - {item.numero}
-                </p>
-              ))
-            ) : (
-              <p>No hay jugadores registrados</p>
-            )}
-          </article>
-        )}
-      </section>
-    );
-  }
-
-  // vista principal del usuario
   return (
     <div className={style.teamOne}>
       <section>
-        <p>
-          Nombre del Equipo Local. Solo permitido 3 Letras como en el ejemplo
-        </p>
+        <p>Nombre del Equipo Local</p>
         <input
-          name="nombreEquipo"
           type="text"
           maxLength={3}
+          name="nombreEquipo"
           onChange={InputChange}
         />
       </section>
       <section>
         <p>Logo del Equipo Local</p>
         <input
-          name="logo"
           type="file"
           accept="image/*"
+          name="logo"
           onChange={InputChange}
         />
+      </section>
+      <section>
+        <p>Cantidad de jugadores del Equipo</p>
+        <input type="number" max={22} onChange={changeCantidad} />
       </section>
       <section>
         <p>Seleccionar Alineación</p>
@@ -210,23 +184,51 @@ function TeamOne() {
           <option value="3-4-1-2">3-4-1-2</option>
         </select>
       </section>
-      <section>
-        <p>Cantidad de jugadores del Equipo</p>
-        <input
-          name="TotalJugadores"
-          type="number"
-          max={22}
-          onChange={changeCantidad}
-        />
-      </section>
-
       {!button && (
         <button className={style.button} onClick={verInfo}>
           Siguiente
         </button>
       )}
 
-      <br />
+      {!Modal && (
+        <section className={style.modalTeam}>
+          <h1 className={style.titleModal}>
+            Ingrese Nombre de los jugadores y número
+          </h1>
+          <br />
+          {Array.from({
+            length: Number(cantidadJugadores),
+          }).map((_, index) => (
+            <article key={index}>
+              <input
+                type="text"
+                placeholder={`Jugador ${index + 1}`}
+                name={`Jugador ${index + 1}`}
+                onChange={(e) => guardarNombre(index, "nombre", e.target.value)}
+              />
+              <input
+                type="text"
+                className={style.numberPlayer}
+                name={`Numero jugador ${index + 1}`}
+                placeholder="22"
+                onChange={(e) => guardarNombre(index, "numero", e.target.value)}
+              />
+            </article>
+          ))}
+
+          <button className={style.button} onClick={Onclick}>
+            Guardar Información
+          </button>
+
+          <button onClick={cambiarValorDeInstruccion} className={style.button}>
+            {" "}
+            Ver nombre de equipos
+          </button>
+          <button onClick={cambiarValorDeInstruccion} className={style.button}>
+            Ver jugadores
+          </button>
+        </section>
+      )}
     </div>
   );
 }

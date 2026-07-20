@@ -3,33 +3,59 @@ import { socket } from "../sockets/sockets";
 import { useState, useEffect } from "react";
 
 function Overlay() {
+  // interface de los 2 equipos
   interface mensaje {
     nombreEquipo: string;
     logo: File | null;
+    logoPreview: string;
     alineacion: string;
   }
 
+  //   informacion del equipo local
   const [mensaje, setMensaje] = useState<mensaje>({
     nombreEquipo: "",
     logo: null,
+    logoPreview: "",
+    alineacion: "",
+  });
+  //  informacion del equipo visitante
+  const [mensaje2, setMensaje2] = useState<mensaje>({
+    nombreEquipo: "",
+    logo: null,
+    logoPreview: "",
     alineacion: "",
   });
 
+  // interface de los jugadores de ambos equipos
   interface Jugador {
     nombre: string;
     numero: string;
   }
 
+  //   datos jugadores equipo local
   const [datosJugadores, setDatosJugadores] = useState<Jugador[]>([]);
+  //   datos jugadores equipo visitante
+  const [datosJugadores2, setDatosJugadores2] = useState<Jugador[]>([]);
+  //   instrucciones de no ver al marcador
   const [instrucciones, setinstrucciones] = useState();
 
+  //   cambio a informacion y jugadores del equipo local
   useEffect(() => {
     socket.on("nuevo-dato-overlay", (data) => {
       setMensaje(data.mensaje);
       setDatosJugadores(data.jugadoresLocal);
     });
   }, []);
-  
+
+  //   cambio a informacion y jugadores del equipo visitante
+  useEffect(() => {
+    socket.on("nuevo-dato-overlay-equipo-visitante", (data) => {
+      setMensaje2(data.mensaje);
+      setDatosJugadores2(data.jugadoresVisitante);
+    });
+  }, []);
+
+  //   cambio a opacidad del marcador
   useEffect(() => {
     socket.on("nueva-instruccion", (data) => {
       setinstrucciones(data.instrucciones);
@@ -38,19 +64,31 @@ function Overlay() {
 
   return (
     <div>
-      <p
-        className={Style.nombreprueba}
-        style={{
-          opacity: instrucciones,
-        }}
-      >
-        {mensaje.nombreEquipo} VS {mensaje.alineacion}
-      </p>
-
-      
+      <article className={Style.marcadorEquipo}>
+        <img src={mensaje.logoPreview} width={120} />
+        <p
+          className={Style.nombreprueba}
+          style={{
+            opacity: instrucciones,
+          }}
+        >
+          {mensaje.nombreEquipo} VS {mensaje2.nombreEquipo}
+        </p>
+        <img src={mensaje2.logoPreview} width={120} />
+      </article>
 
       <div>
+        <p>Equipo Local:</p>
         {datosJugadores.map((jugador, index) => (
+          <p key={index}>
+            {jugador.nombre} - {jugador.numero}
+          </p>
+        ))}
+      </div>
+      <br />
+      <div>
+        <p>Equipo Visitante:</p>
+        {datosJugadores2.map((jugador, index) => (
           <p key={index}>
             {jugador.nombre} - {jugador.numero}
           </p>

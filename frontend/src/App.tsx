@@ -2,7 +2,7 @@ import Dashboard from "./components/Dashboard";
 import TeamOne from "./components/TeamOne";
 import style from "./App.module.css";
 import TeamTwo from "./components/TeamTwo";
-import OthersComponents from "./components/OthersComponents";
+import OthersComponents from "./components/Components";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Overlay from "./components/Overlay";
 

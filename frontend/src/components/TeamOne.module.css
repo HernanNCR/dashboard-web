@@ -55,3 +55,12 @@ input, select{
     background-color: blue;
     padding: 10px 15px;
 }
+
+.tableEquipos{
+    display: flex;
+}
+
+.marcadorEquipo{
+    display: flex;
+    flex-direction: row;
+}
