@@ -1,8 +1,6 @@
 import { Server as SocketServer } from "socket.io";
 import { Server as HttpServer } from "http";
 
-// aprender que es lo que está sucediendo y repetirlo desde cero
-
 export function setupSocket(server: HttpServer) {
   const io = new SocketServer(server, {
     cors: {
@@ -10,41 +8,79 @@ export function setupSocket(server: HttpServer) {
     },
   });
 
+  interface Jugador {
+    nombre: string;
+    numero: string;
+    tipo: string;
+    position?: string;
+  }
+
+  let jugadoresLocal: Jugador[] = [];
+  let jugadoresVisitante: Jugador[] = [];
+
   io.on("connection", (socket) => {
-    // informacion es la infromacion que viaja al backend
-
-    // socket.on("conexion", (informacion) =>{ <- "conexion" es de donde parte la información
-    //  socket.broadcast.emit( <- emit es a donde llegará la información
-    //      "nuevo",
-    //      informacion
-    // })
-
+    // cliente conectado
     console.log("Cliente conectado:", socket.id);
-    
+
+    // PRUEBA GUARDAR JUGADORES -----------------------
+    // socket.on("guardar-jugadores", (jugadores) => {
+    //   jugadoresLocal = jugadores;
+    // });
+
+    // // 2. El Dashboard pide los jugadores actuales
+    // socket.on("obtener-jugadores", () => {
+    //   socket.emit("jugadores-actuales", jugadoresLocal);
+    // });
+    // --------------------------------------------------
+
+
+
+
 
     // enviar informacion y datos de jugadores equipo local al overlay
     socket.on("actualizar-overlay", (data) => {
       console.log(data);
 
-      socket.broadcast.emit("nuevo-dato-overlay", data);
+      jugadoresLocal = data.jugadoresLocal;
+
+      // socket.broadcast.emit("nuevo-dato-overlay", data);
+      io.emit("nuevo-dato-overlay", data);
     });
+
+
+
+
+    socket.on("obtener-jugadores", () => {
+      socket.emit("jugadores-actuales", jugadoresLocal);
+    });
+
+
+
+
 
     // enviar informacion y datos de jugadores equipo visitante al overlay
     socket.on("actualizar-overlay-equipo-visitante", (data) => {
       console.log(data);
 
-      socket.broadcast.emit("nuevo-dato-overlay-equipo-visitante", data);
+      jugadoresVisitante = data.jugadoresVisitante;
+
+      // socket.broadcast.emit("nuevo-dato-overlay-equipo-visitante", data);
+      io.emit("nuevo-dato-overlay-equipo-visitante", data);
+    });
+
+    socket.on("obtener-jugadores-visitante", () => {
+      socket.emit("jugadores-actuales-visitante", jugadoresVisitante);
     });
 
     // enviar instruccion de opacidad del marcador al overlay
-    socket.on("actualizar-instruccion", (data) => {
-      console.log(data);
 
-      socket.broadcast.emit("nueva-instruccion", data);
-    });
+    // socket.on("actualizar-instruccion", (data) => {
+    //   console.log(data);
 
+    //   socket.broadcast.emit("nueva-instruccion", data);
+    // });
 
-
+    // desconectar cliente
 
     socket.on("disconnect", () => {
       console.log("Cliente desconectado");

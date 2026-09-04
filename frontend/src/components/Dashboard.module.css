@@ -1,15 +1,319 @@
-.bodyNav {
-  /* background-color: red; */
-  width: auto;
-  height: auto;
+/* cuerpo general de dashboard */
+.body{
+  background-color: #000913;
+
+  width: 100%;
+  height: 1220px;
   display: flex;
-  flex-direction: column;
+  flex-direction: column; 
   justify-content: center;
   align-items: center;
-  margin: 50px 0px;
+  
 }
 
-section{
+/* navegador de en vivo */
+.nav{
+  width: 99%;
+  height: 80px;
+  border-radius: 10px;
+  background-color: #04101B;
+  margin: 30px 0px;
+  border: 1px solid rgba(211, 211, 211, .3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.navtitle{
+  width: 30%;
+  height: 65px;
+  background-color: #111B24;
+  border-radius: 7px;
+}
+
+.navtitle h1{
+  padding: 15px 0px;
+  color: white;
+  font-size: 20px;
+  font-weight: 500;
+}
+
+/* el dahsboard se divide en 2, seccion alta y seccion baja */
+/* seccion alta */
+.sectionTop{
+  height: 600px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0px 30px;
+}
+
+/* contenedor de escenas */
+.sectionTop .divEscenas{
+  width: 25%;
+  height: 550px;
+  background-color: #111B24;
+  margin: 15px;
+  display: flex;
+  flex-direction: column;
+  border-radius: 10px;
+}
+.p,
+.sectionTop .divEscenas p{
+  color: white;
+  font-weight: 700;
+  font-size: 20px;
+  margin: 15px 20px;
+}
+
+.sectionTop .divEscenas img{
+  margin: 15px 20px;
+  cursor: pointer;
+}
+.ArticleEscena{
+  width: 95%;
+  height: 60px;
+  background-color: #18242F;
+  margin: 5px;
+  border-radius: 10px;
+  /* text-align: left; */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* contenedor overlay */
+.sectionTop .divOverlay{
+  width: 53%;
+  height: 550px;
+  /* background-color: black; */
+  border: 1px solid greenyellow;
+  box-shadow: 0px 0px 5px greenyellow;
+  border-radius: 15px;
+}
+
+/* contenedor de extras */
+.sectionTop .divExtras{
+  width: 20%;
+  height: 550px;
+  background-color: #111B24;
+  margin: 15px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+}
+
+.sectionExtras{
+  width: 90%;
+}
+
+.contenedorExtras{
+  border-bottom: 1px solid lightgray;
+  display: flex;
+  flex-direction: column;
+  /* margin: 5px; */
+}
+
+.contenedorExtras .titleExtras{
+  font-size: 20px;
+  font-weight: 700;
+  color: white;
+  margin: 10px;
+  display: flex;
+  justify-content: space-around;
+}
+
+.contenedorExtras .contenidoExtras{
+ font-size: 40px;
+  font-weight: 700;
+  color: white; 
+  margin: 10px 50px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.contenedorExtras .buttonContenedorExtras{
+  width: 65px;
+  height: 58px;
+  border-radius: 5px;
+  background-color: #2F3942;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  
+}
+
+
+
+.contenedorExtras .contentVinculo,
+.contenedorExtras .contentPenales{
+  width: 100%;
+  height: 40px;
+  border-radius: 5px;
+  background-color: #2F3942;
+  font-size: 12px;
+  font-weight: 300;
+  color: rgba(255,255,255,.5);
+  text-align: left;
+  padding: 0px 20px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.botonInterno{
+  width: 55px;
+  height: 40px;
+  background-color: #146F31;
+  border-radius: 3px;
+  margin-right: -20px;
+  display: flex;
+  justify-content: center;
+}
+
+
+/* seccion baja */
+.sectionBottom{
+  height: 550px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  /* align-items: center; */
+  /* background-color: red; */
+}
+
+/* conetenedor equi local */
+.sectionBottom .divEquipoLocal{
+  width: 39%;
+  height: 480px;
+  background-color: rgba(255, 165, 0, .2);
+  border: 3px solid orange;
+  border-radius: 15px;
+}
+
+
+.sectionBottom .divEquipoLocal p{
+  color: white;
+  font-weight: 500;
+  font-size: 30px;
+  margin: 15px 0px;
+}
+
+.sectionBottom .divEquipoLocal .JugadoresEquipoLocal,
+.sectionBottom .divEquipoVisitante .JugadoresEquipoVisitante{
+  width: 100%;
+  height: 85%;
+  border: 3px solid orange;
+  background-color: #111B24;
+  border-radius: 15px;
+  flex-direction: row;
+  display: flex;
+  color: white;
+}
+
+.divJugadores{
+  width: 100%;
+  margin: 5px;
+  display: flex;
+  flex-direction: column;
+  
+}
+.etiquetaJugador{
+  width: 80%;
+  height: auto;
+  border-radius: 7px;
+  background-color: #18242F;
+  margin: 5px 10px;
+  padding: 15px 30px;
+  font-size: 17px;
+  cursor: pointer;
+}
+
+
+/* conetenedor de eventos */
+.sectionBottom .divEventos{
+  width: 20%;
+  height: 480px;
+  background-color: #111B24;
+  margin: 0px 15px;
+  border-radius: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  
+}
+
+
+
+.sectionBottom .divEventos article{
+  width: 70%;
+  height: 60px;
+  font-weight: 700;
+  margin: 15px;
+  border-radius: 10px;
+  text-align: left;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+}
+
+.tarjetaAmarilla{
+  background-color: rgba(242, 255, 0, 0.2);
+  border: 1px solid yellow;
+  color: yellow;
+  cursor: pointer;
+}
+.tarjetaRoja{
+  background-color: rgba(255, 47, 0, 0.2);
+  border: 1px solid red;
+  color: red;
+  cursor: pointer;
+}
+.Cambios{
+  background-color: rgba(0, 42, 255, 0.2);
+  border: 1px solid blue;
+  color: blue;
+  cursor: pointer;
+}
+.Gol{
+  background-color: rgba(51, 255, 0, 0.2);
+  border: 1px solid green;
+  color: green;
+  cursor: pointer;
+}
+
+
+/* conetenedor equipo visitante */
+.sectionBottom .divEquipoVisitante{
+  width: 39%;
+  height: 480px;
+  border-radius: 15px;
+}
+
+.sectionBottom .divEquipoVisitante p{
+  color: white;
+  font-weight: 500;
+  font-size: 30px;
+  margin: 15px 0px;
+}
+
+.sectionBottom .divEquipoVisitante .JugadoresEquipoVisitante{
+  width: 100%;
+  height: 85%;
+  border: 3px solid green;
+  background-color: #111B24;
+  border-radius: 15px;
+}
+
+
+
+
+/* section{
   margin: 30px 10px;
 }
 
@@ -19,5 +323,11 @@ section{
   display: flex;
   justify-content: center;
   align-items: center;
+} */
+
+.prueba{
+  background-color: blue;
+  width: 100%;
+  height: 700px;
 }
 

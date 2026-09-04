@@ -1,66 +1,291 @@
-.teamOne{
-    border: 1px solid black;
-
-    width: 100%;
-    height: auto;
-    margin: 10px;
+.teamOne {
+  border: 1px solid black;
+  width: 100%;
+  height: auto;
+  margin: 10px;
 }
 
-input, select{
-    border: 1px solid gray;
-    border-radius: 5px;
-    width: 400px;
-    height: 45px;
-    padding: 0px 10px;
+input,
+select {
+  border: 1px solid gray;
+  border-radius: 5px;
+  width: 400px;
+  height: 45px;
+  padding: 0px 10px;
+  background-color: #18242f;
+  color: white;
+}
+
+/* MODAL  */
+
+.titleModal {
+  padding: 0px 35px;
+  color: white;
+  font-size: 20px;
+}
+
+.modalTeam {
+  width: 80%;
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid lightgray;
+  height: 600px;
+  overflow-y: scroll;
+}
+.modalTeam::-webkit-scrollbar {
+  display: none; /* Chrome, Edge, Safari */
+}
+
+.modalTeam article {
+  margin: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.button {
+  background-color: lightblue;
+  padding: 10px 25px;
+  margin: 10px;
+  border-radius: 5px;
+  border: 1px solid black;
+  cursor: pointer;
+}
+.button::active {
+  background-color: rgb(3, 3, 88);
+  color: white;
+}
+
+.nombreprueba {
+  color: red;
+  font-size: 80px;
+  font-weight: 600;
+  opacity: 1;
+}
+.botonprueba {
+  color: aliceblue;
+  background-color: blue;
+  padding: 10px 15px;
+}
+
+.tableEquipos {
+  display: flex;
+}
+
+.marcadorEquipo {
+  display: flex;
+  flex-direction: row;
+}
+
+/*  */
+
+.secciones {
+  background-color: #000913;
+  height: 1230px;
+}
+
+.seccionDatos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+
 }
 
 
-/* MODAL */
-
-.titleModal{
-    padding: 0px 35px;
+.seccionJugadores {
+  /* background-color: #111B24; */
+  height: auto;
+  width: 950%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
 }
 
-.numberPlayer{
+.articleSeccion {
+  background-color: #111b24;
+  width: 67rem;
+  height: 370px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  border-radius: 10px;
+  margin: 25px;
+}
+
+.articleSeccionJugadores {
+  background-color: #111b24;
+  width: 67rem;
+  height: 670px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  border-radius: 10px;
+  margin: 25px;
+}
+
+.articleSeccion .inputSeccion,
+.articleSeccionJugadores .inputSeccion {
+  border: 0px;
+  border-radius: 0px;
+  background-color: #111b24;
+  border-bottom: 1px solid white;
+  width: 70%;
+  text-align: center;
+}
+
+.titleArticleSeccion {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.secciones p,
+.seccionDatos p,
+.seccionJugadores p {
+  font-weight: 800;
+  color: white;
+  font-size: 30px;
+  margin: 30px;
+}
+
+.namePlayer {
+  width: 700px;
+  height: 55px;
+  margin: 20px 0px;
+  padding: 25px 35px;
+}
+
+/* .numberPlayer{
     width: 70px;
+    height: 55px;
     text-align: center;
     margin: 5px;
+} */
+
+input[type="color"] {
+  width: 150px;
+  height: 150px;
+  padding: 5px;
 }
 
-.modalTeam{
-    width: 100%;
+.button {
+  background-color: #568cff;
+  transition: .3s ease-in-out 0s;
+  height: 70px;
+  width: 30%;
+  float: right;
+  margin: 0px 50px;
+  border-radius: 35px;
+  font-size: 20px;
+  font-weight: 600;
+  color: #000913;
 }
 
-.button{
-    background-color: lightblue;
-    padding: 10px 25px;
-    margin: 10px;
-    border-radius: 5px;
-    border: 1px solid black;
-    cursor: pointer;
-}
-.button::active{
-    background-color: rgb(3, 3, 88);
-    color: white;
+.button:active {
+  background-color: rgba(86, 140, 255, 0.5);
 }
 
-.nombreprueba{
-    color: red;
-    font-size: 80px;
-    font-weight: 600;
-    opacity: 1;
-}
-.botonprueba{
-    color: aliceblue;
-    background-color: blue;
-    padding: 10px 15px;
-}
-
-.tableEquipos{
-    display: flex;
+.button_desactive{
+  background-color: #21345df9;
+  transition: .3s ease-in-out 0s;
+  height: 70px;
+  width: 30%;
+  float: right;
+  margin: 0px 50px;
+  border-radius: 35px;
+  font-size: 20px;
+  font-weight: 600;
+  color: #000913;
 }
 
-.marcadorEquipo{
-    display: flex;
-    flex-direction: row;
+/* MODAL PARA LA ELECCION DE TITUALRES EN LA ALINEACION */
+
+.alineacionesTitulares {
+  display: flex;
+  flex-direction: row;
+}
+
+.alineacionCentral {
+  width: 70%;
+  /* background-color: red; */
+  height: 1230px;
+  /* display: flex;
+    flex-direction: column;
+    align-items: center; */
+}
+.seleccionTitulares {
+  width: 30%;
+  height: 1230px;
+}
+
+.contenedorTITULARES {
+  background-color: #16222d;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* justify-content: center; */
+  margin: 50px 50px 0px 50px;
+  height: 85%;
+  border-radius: 20px;
+}
+
+.titular {
+  width: 90%;
+  background-color: #2f3942;
+  /* background-color: red; */
+  text-align: center;
+  border-radius: 5px;
+  margin: 10px 0px;
+  cursor: pointer;
+}
+
+.titular p {
+  font-size: 20px;
+}
+
+.contenedorAlineacion {
+  background-color: #16222d;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* justify-content: center; */
+  margin: 50px;
+  height: 93%;
+  width: 95%;
+  border-radius: 20px;
+}
+
+.alineacion {
+  width: 90%;
+  height: 87%;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.alineacion article {
+  width: 250px;
+  height: 150px;
+  border-radius: 10px;
+  margin: 10px;
+  cursor: pointer;
+  background-color: #2f3942;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* prueba alineacion */
+.alineacion {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  height: 100%;
+}
+
+.fila {
+  display: grid;
+  gap: 20px;
+  justify-items: center;
 }
