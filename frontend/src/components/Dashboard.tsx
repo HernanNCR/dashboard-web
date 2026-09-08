@@ -1,10 +1,6 @@
 import { useState } from "react";
 import { socket } from "../sockets/sockets";
-
 import { useNavigate } from "react-router-dom";
-
-// import styles from "./Dashboard.module.css";
-
 import style from "./TeamOne.module.css";
 
 function Dashboard() {
@@ -13,7 +9,6 @@ function Dashboard() {
   // --------------- //
   //   Equipo Local  //
   // --------------- //
-  // const [Modal, setModal] = useState(true);
 
   // --------------------------------
   // interfaces de Equipo y Jugadores
@@ -94,17 +89,11 @@ function Dashboard() {
     }));
   };
 
-  // verInfo es un boton de prueba para poder
-  // const verInfo = () => {
-  //   setModal(false);
-  // };
-
   // changeCantidad guarda la cantidad total de jugadores y marca el cambio de bandera en setButton
   const changeCantidad = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
 
     setcantidadJugadores(Number(value));
-    // setButton(false);
   };
 
   // guardarNombre guarda el nombre y numero del jugador dependiendo el index si el index no existe en el arrelgo se agrega y que agrega? el index, el campo y el valor
@@ -112,7 +101,6 @@ function Dashboard() {
     index: number,
     campo: "nombre" | "numero" | "tipo",
     valor: string,
-    // list: string,
   ) => {
     setDatosJugadores((prev) => {
       const jugadores = [...prev];
@@ -122,7 +110,6 @@ function Dashboard() {
           nombre: "",
           numero: "",
           tipo: "",
-          // list:"",
         };
       }
 
@@ -154,13 +141,7 @@ function Dashboard() {
   };
 
   const buttOnTerminarRegistro = () => {
-
     setBandera(2);
-
-
-    
-
-    
   };
 
   const buttOnTerminarRegistroVisit = () => {
@@ -285,43 +266,8 @@ function Dashboard() {
   const [alineacionesVisit, setalineacionesVisit] = useState(true);
   const [visitante, setVisitante] = useState(true);
 
-  // -----------------------------------------------------------
-
-  // variable para cambio de opacidad en el marcador
-  // var [instruccionOpacity, setinstruccionesOpacity] = useState(0);
-
-  // const cambiarValorDeInstruccion = () => {
-  //   if (instruccionOpacity === 0) {
-  //     setinstruccionesOpacity(1);
-
-  //     socket.emit("actualizar-instruccion", {
-  //       instrucciones: instruccionOpacity,
-  //     });
-  //   } else if (instruccionOpacity === 1) {
-  //     setinstruccionesOpacity(0);
-
-  //     socket.emit("actualizar-instruccion", {
-  //       instrucciones: instruccionOpacity,
-  //     });
-  //   }
-  // };
-
-  // const [colorLocal, setColorLocal] = useState("#ffffff");
-  // <button
-  //               onClick={cambiarValorDeInstruccion}
-  //               className={style.button}
-  //             >
-  //               {" "}
-  //               Ver nombre de equipos
-  //             </button>
-  //             <button
-  //               onClick={cambiarValorDeInstruccion}
-  //               className={style.button}
-  //             >
-  //               Ver jugadores
-  //             </button>
-
-  // -----------------------------------------------------------
+  
+  // ALINEACIONES DE AMBOS EQUIPOS
 
   const [alineaciones, setAlineaciones] = useState(true);
   const [local, setlocal] = useState(true);

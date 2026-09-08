@@ -8,6 +8,14 @@ export function setupSocket(server: HttpServer) {
     },
   });
 
+  interface Equipo {
+    nombreEquipo: string;
+    logo: File | null;
+    logoPreview: string;
+    alineacion: string;
+    colorimetria: string;
+  }
+
   interface Jugador {
     nombre: string;
     numero: string;
@@ -17,6 +25,8 @@ export function setupSocket(server: HttpServer) {
 
   let jugadoresLocal: Jugador[] = [];
   let jugadoresVisitante: Jugador[] = [];
+  let informacionLocal: Equipo[] = [];
+  let informacionVisitante: Equipo[] = [];
 
   io.on("connection", (socket) => {
     // cliente conectado
@@ -42,17 +52,19 @@ export function setupSocket(server: HttpServer) {
       console.log(data);
 
       jugadoresLocal = data.jugadoresLocal;
+      informacionLocal = data.mensaje;
 
       // socket.broadcast.emit("nuevo-dato-overlay", data);
       io.emit("nuevo-dato-overlay", data);
     });
-
-
-
-
     socket.on("obtener-jugadores", () => {
       socket.emit("jugadores-actuales", jugadoresLocal);
     });
+    socket.on("obtener-info-local", () => {
+      socket.emit("info-local",informacionLocal);
+    })
+
+
 
 
 
@@ -63,14 +75,23 @@ export function setupSocket(server: HttpServer) {
       console.log(data);
 
       jugadoresVisitante = data.jugadoresVisitante;
+      informacionVisitante = data.mensaje;
 
-      // socket.broadcast.emit("nuevo-dato-overlay-equipo-visitante", data);
+      
       io.emit("nuevo-dato-overlay-equipo-visitante", data);
     });
 
     socket.on("obtener-jugadores-visitante", () => {
       socket.emit("jugadores-actuales-visitante", jugadoresVisitante);
     });
+
+    socket.on("obtener-info-visitante", () => {
+      socket.emit("info-visitante",informacionVisitante);
+    })
+
+
+
+
 
     // enviar instruccion de opacidad del marcador al overlay
 

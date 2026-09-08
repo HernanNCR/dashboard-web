@@ -1,9 +1,6 @@
 import { socket } from "../sockets/sockets";
 import { useState, useEffect } from "react";
-
 import styles from "./Dashboard.module.css";
-// import style from "./TeamOne.module.css";
-
 import Overlay from "./Overlay";
 
 // importar iconos
@@ -34,70 +31,20 @@ function Components() {
     tipo: string;
   }
 
-  const [informacionTeamOne, setInformacionTeamOne] = useState<Equipo>({
-    nombreEquipo: "",
-    logo: null,
-    logoPreview: "",
-    alineacion: "",
-    colorimetria: "",
-  });
 
-  const [datosJugadores, setDatosJugadores] = useState<Jugador[]>([]);
-
-  useEffect(() => {
-    const recibirDatos = (data: any) => {
-      console.log("DATOS RECIBIDOS EN DASHBOARD:", data);
-
-      setInformacionTeamOne(data.mensaje);
-      setDatosJugadores(data.jugadoresLocal);
-    };
-
-    socket.on("nuevo-dato-overlay", recibirDatos);
-
-    return () => {
-      socket.off("nuevo-dato-overlay", recibirDatos);
-    };
-  }, []);
-
-  const [jugadores2, setjugadores2] = useState<Jugador[]>([]);
-
-  useEffect(() => {
-    const recibirJug = (data: any) => {
-      setjugadores2(data);
-    };
-    socket.emit("obtener-jugadores", recibirJug);
-  });
-
-  const [datosJugadores2, setDatosJugadores2] = useState<Jugador[]>([]);
-
-  const [informacionTeamTwo, setinformacionTeamTwo] = useState<Equipo>({
-    nombreEquipo: "",
-    logo: null,
-    logoPreview: "",
-    alineacion: "",
-    colorimetria: "",
-  });
-
-  useEffect(() => {
-    const recibirDatos = (data: any) => {
-      console.log("DATOS RECIBIDOS EN DASHBOARD:", data);
-
-      setinformacionTeamTwo(data.mensaje);
-      setDatosJugadores2(data.jugadoresVisitante);
-    };
-
-    socket.on("nuevo-dato-overlay-equipo-visitante", recibirDatos);
-
-    return () => {
-      socket.off("nuevo-dato-overlay-equipo-visitante", recibirDatos);
-    };
-  }, []);
-
-  // EJEMPLO---------
-
+  // ------LOCAL----------
+  // varianes de jugadores y de equipo
   const [jugadoresPrueba, setJugadoresPrueba] = useState<Jugador[]>([]);
+  const [informacion1, setinformacion1] = useState<Equipo>({
+    nombreEquipo: "",
+    logo: null,
+    logoPreview: "",
+    alineacion: "",
+    colorimetria: "",
+  });
 
   useEffect(() => {
+    // informacion jugadores local
     const recibirJugadores = (data: Jugador[]) => {
       setJugadoresPrueba(data);
     };
@@ -106,15 +53,33 @@ function Components() {
 
     socket.emit("obtener-jugadores");
 
+    // informacion equipo local
+    const recibirInformacionLocal = (data: Equipo) => {
+      setinformacion1(data);
+    };
+    socket.on("info-local", recibirInformacionLocal);
+    socket.emit("obtener-info-local");
+
+    // retornar sockets.off's
     return () => {
       socket.off("jugadores-actuales", recibirJugadores);
+      socket.off("info-local", recibirInformacionLocal);
     };
   }, []);
 
+  // ---------VISITANTE-------------
 
+  const [informacion2, setinformacion2] = useState<Equipo>({
+    nombreEquipo: "",
+    logo: null,
+    logoPreview: "",
+    alineacion: "",
+    colorimetria: "",
+  });
   const [jugadoresPruebaV, setJugadoresPruebaV] = useState<Jugador[]>([]);
 
   useEffect(() => {
+    // recuperar informacion de jugadores visitante
     const recibirJugadoresV = (data: Jugador[]) => {
       setJugadoresPruebaV(data);
     };
@@ -123,8 +88,19 @@ function Components() {
 
     socket.emit("obtener-jugadores-visitante");
 
+
+    // recuperar informacion de equipo visitante
+    const recibirInformacionVisitante = (data : Equipo) =>{
+      setinformacion2(data);
+    }
+    socket.on("info-visitante", recibirInformacionVisitante);
+    socket.emit("obtener-info-visitante")
+
+
+    // retornar socker.off
     return () => {
       socket.off("jugadores-actuales-visitante", recibirJugadoresV);
+      socket.off("info-visitante",recibirInformacionVisitante);
     };
   }, []);
 
@@ -253,35 +229,22 @@ function Components() {
         <div
           className={styles.divEquipoLocal}
           style={{
-            background: `${informacionTeamOne.colorimetria}33`,
-            border: `3px solid ${informacionTeamOne.colorimetria}`,
+            background: `${informacion1.colorimetria}33`,
+            border: `3px solid ${informacion1.colorimetria}`,
           }}
         >
-          <center>
-            <img src={informacionTeamOne.logoPreview} width="50" />
-            <p>{informacionTeamOne.nombreEquipo}</p>
-          </center>
+          <div className={styles.titleEquipoLocal}>
+            <img src={informacion1.logoPreview} width="50" />
+            <p>{informacion1.nombreEquipo}</p>
+            <p>0</p>
+          </div>
 
           <div
             className={styles.JugadoresEquipoLocal}
-            style={{ border: `3px solid ${informacionTeamOne.colorimetria}` }}
+            style={{ border: `3px solid ${informacion1.colorimetria}` }}
           >
             <div className={styles.divJugadores}>
               TITULARES
-              {/* {datosJugadores
-                .filter((jugador) => jugador.tipo === "1")
-                .map((jugador, index) => (
-                  <article key={index} className={styles.etiquetaJugador}>
-                    {jugador.numero} {jugador.nombre}
-                  </article>
-                ))} */}
-              {/* {jugadores2
-                .filter((jugador) => jugador.tipo === "1")
-                .map((jugador, index) => (
-                  <article key={index} className={styles.etiquetaJugador}>
-                    {jugador.numero} {jugador.nombre}
-                  </article>
-                ))} */}
               {jugadoresPrueba
                 .filter((jugador) => jugador.tipo === "1")
                 .map((jugador, index) => (
@@ -293,7 +256,7 @@ function Components() {
 
             <div className={styles.divJugadores}>
               RESERVA
-              {datosJugadores
+              {jugadoresPrueba
                 .filter((jugador) => jugador.tipo === "0")
                 .map((jugador, index) => (
                   <article key={index} className={styles.etiquetaJugador}>
@@ -335,29 +298,23 @@ function Components() {
         <div
           className={styles.divEquipoVisitante}
           style={{
-            background: `${informacionTeamTwo.colorimetria}33`,
-            border: `3px solid ${informacionTeamTwo.colorimetria}`,
+            background: `${informacion2.colorimetria}33`,
+            border: `3px solid ${informacion2.colorimetria}`,
           }}
         >
-          <center>
-            <img src={informacionTeamTwo.logoPreview} width="50" />
-            <p>{informacionTeamTwo.nombreEquipo}</p>
-          </center>
+          <div className={styles.titleEquipoLocal}>
+            <img src={informacion2.logoPreview} width="50" />
+            <p>{informacion2.nombreEquipo}</p>
+            <p>0</p>
+          </div>
 
           <div
             className={styles.JugadoresEquipoVisitante}
-            style={{ border: `3px solid ${informacionTeamTwo.colorimetria}` }}
+            style={{ border: `3px solid ${informacion2.colorimetria}` }}
           >
             <div className={styles.divJugadores}>
               TITULARES
-              {/* {datosJugadores2
-                .filter((jugador) => jugador.tipo === "1")
-                .map((jugador, index) => (
-                  <article key={index} className={styles.etiquetaJugador}>
-                    {jugador.numero} {jugador.nombre}
-                  </article>
-                ))} */}
-                {jugadoresPruebaV
+              {jugadoresPruebaV
                 .filter((jugador) => jugador.tipo === "1")
                 .map((jugador, index) => (
                   <article key={index} className={styles.etiquetaJugador}>
@@ -368,14 +325,7 @@ function Components() {
 
             <div className={styles.divJugadores}>
               RESERVA
-              {/* {datosJugadores2
-                .filter((jugador) => jugador.tipo === "0")
-                .map((jugador, index) => (
-                  <article key={index} className={styles.etiquetaJugador}>
-                    {jugador.numero} {jugador.nombre}
-                  </article>
-                ))} */}
-                {jugadoresPruebaV
+              {jugadoresPruebaV
                 .filter((jugador) => jugador.tipo === "0")
                 .map((jugador, index) => (
                   <article key={index} className={styles.etiquetaJugador}>
