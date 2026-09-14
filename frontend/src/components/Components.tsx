@@ -1,343 +1,773 @@
+import { useState } from "react";
 import { socket } from "../sockets/sockets";
-import { useState, useEffect } from "react";
-import styles from "./Dashboard.module.css";
-import Overlay from "./Overlay";
-
-// importar iconos
-import gol from "../assets/icons/futbol-regular-full.svg";
-import tarjetaAmarilla from "../assets/icons/amarilla.png";
-import tarjetaRoja from "../assets/icons/roja.png";
-import cambio from "../assets/icons/rotate-solid-full.svg";
-import time from "../assets/icons/clock-solid-full.svg";
-import timeExtra from "../assets/icons/tiempo-extra.png";
-import vinculo from "../assets/icons/link-solid-full.svg";
-import play from "../assets/icons/play-solid-full.svg";
-import eye from "../assets/icons/eye-solid-full.svg";
-import penal from "../assets/icons/penalty.png";
+import { useNavigate } from "react-router-dom";
+import style from "./TeamOne.module.css";
 
 function Components() {
+  const navigate = useNavigate();
+
+  // --------------- //
+  //   Equipo Local  //
+  // --------------- //
+
+  // --------------------------------
+  // interfaces de Equipo y Jugadores
+  // --------------------------------
+  //ayudan a definir el objeto y sus propiedades para que las funciones solo rellenen deacuerdo a lo que aqui se establezca
   interface Equipo {
     nombreEquipo: string;
     logo: File | null;
     logoPreview: string;
     alineacion: string;
     colorimetria: string;
+    Goles: number
   }
 
-  // interface de los jugadores de ambos equipos
+  
   interface Jugador {
     nombre: string;
     numero: string;
     tipo: string;
+    position?: string;
   }
 
 
-  // ------LOCAL----------
-  // varianes de jugadores y de equipo
-  const [jugadoresPrueba, setJugadoresPrueba] = useState<Jugador[]>([]);
-  const [informacion1, setinformacion1] = useState<Equipo>({
+  // --------------------------------------------------------------------------------------
+  // Estados de cambio, variables que ayudan a obtener informacion de los puntos de entrada
+  // --------------------------------------------------------------------------------------
+  // informacionTeamOne sirve para tomar la informacion del equipo Local
+  const [informacionTeamOne, setinformacionTeamOne] = useState<Equipo>({
     nombreEquipo: "",
     logo: null,
     logoPreview: "",
     alineacion: "",
     colorimetria: "",
+    Goles: 0
   });
+  // cantidadJugadores sirve para guardar la cantidad total de los jugadores del equipo
+  const [cantidadJugadores, setcantidadJugadores] = useState(0);
 
-  useEffect(() => {
-    // informacion jugadores local
-    const recibirJugadores = (data: Jugador[]) => {
-      setJugadoresPrueba(data);
-    };
+  // button es un condicional para poder ver o no ver el botón del siguiente paso del registro del equipo
+  // const [button, setButton] = useState(true);
 
-    socket.on("jugadores-actuales", recibirJugadores);
+  // datosJugadores nos ayuda a guardar en arreglos la información de cada jugador
+  const [datosJugadores, setDatosJugadores] = useState<Jugador[]>([]);
 
-    socket.emit("obtener-jugadores");
+  // ------------
+  // Funciones
+  // ------------
+  // InputChange guarda infromacion general del equipo, como lo es nombre y logo
+  const InputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value, files, type } = e.target;
 
-    // informacion equipo local
-    const recibirInformacionLocal = (data: Equipo) => {
-      setinformacion1(data);
-    };
-    socket.on("info-local", recibirInformacionLocal);
-    socket.emit("obtener-info-local");
+    if (type === "file" && files?.[0]) {
+      const archivo = files[0];
+      const reader = new FileReader();
 
-    // retornar sockets.off's
-    return () => {
-      socket.off("jugadores-actuales", recibirJugadores);
-      socket.off("info-local", recibirInformacionLocal);
-    };
-  }, []);
+      reader.onload = () => {
+        const base64 = reader.result as string;
 
-  // ---------VISITANTE-------------
+        setinformacionTeamOne((prev) => ({
+          ...prev,
+          logo: archivo,
+          logoPreview: base64,
+        }));
+      };
 
-  const [informacion2, setinformacion2] = useState<Equipo>({
-    nombreEquipo: "",
-    logo: null,
-    logoPreview: "",
-    alineacion: "",
-    colorimetria: "",
-  });
-  const [jugadoresPruebaV, setJugadoresPruebaV] = useState<Jugador[]>([]);
+      reader.readAsDataURL(archivo);
 
-  useEffect(() => {
-    // recuperar informacion de jugadores visitante
-    const recibirJugadoresV = (data: Jugador[]) => {
-      setJugadoresPruebaV(data);
-    };
-
-    socket.on("jugadores-actuales-visitante", recibirJugadoresV);
-
-    socket.emit("obtener-jugadores-visitante");
-
-
-    // recuperar informacion de equipo visitante
-    const recibirInformacionVisitante = (data : Equipo) =>{
-      setinformacion2(data);
+      return;
     }
-    socket.on("info-visitante", recibirInformacionVisitante);
-    socket.emit("obtener-info-visitante")
+
+    setinformacionTeamOne((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  // SelectChange guarda informacion del select de alineación
+  const SelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setinformacionTeamOne((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  // changeCantidad guarda la cantidad total de jugadores y marca el cambio de bandera en setButton
+  const changeCantidad = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+
+    setcantidadJugadores(Number(value));
+  };
+
+  // guardarNombre guarda el nombre y numero del jugador dependiendo el index si el index no existe en el arrelgo se agrega y que agrega? el index, el campo y el valor
+  const guardarNombre = (
+    index: number,
+    campo: "nombre" | "numero" | "tipo",
+    valor: string,
+  ) => {
+    setDatosJugadores((prev) => {
+      const jugadores = [...prev];
+
+      if (!jugadores[index]) {
+        jugadores[index] = {
+          nombre: "",
+          numero: "",
+          tipo: "",
+        };
+      }
+
+      jugadores[index][campo] = valor;
+
+      return jugadores;
+    });
+  };
+
+  // ----------------------- //
+  // INSTRUCCIONES GENERALES //
+  // ----------------------- //
+
+  // Boton para enviar mensaje a overlay
+  const Onclick = () => {
+    if (
+      informacionTeamOne.nombreEquipo &&
+      informacionTeamOne.logoPreview &&
+      informacionTeamOne.colorimetria &&
+      informacionTeamOne.alineacion &&
+      cantidadJugadores > 0 &&
+      datosJugadores.length > 0
+    ) {
+      setAlineaciones(false);
+      setlocal(false);
+    } else {
+      console.log("complete los campos");
+    }
+  };
+
+  const buttOnTerminarRegistro = () => {
+    setBandera(2);
+  };
+
+  const buttOnTerminarRegistroVisit = () => {
+
+    navigate("/Dashboard");
+
+    socket.emit("actualizar-overlay", {
+      mensaje: informacionTeamOne,
+      jugadoresLocal: datosJugadores,
+    });
+
+    socket.emit("actualizar-overlay-equipo-visitante", {
+      mensaje: informacionTeamTwo,
+      jugadoresVisitante: datosJugadoresTeamTwo,
+    });
 
 
-    // retornar socker.off
-    return () => {
-      socket.off("jugadores-actuales-visitante", recibirJugadoresV);
-      socket.off("info-visitante",recibirInformacionVisitante);
-    };
-  }, []);
 
-  return (
-    <div className={styles.body}>
-      <nav className={styles.nav}>
-        <article className={styles.navtitle}>
-          <center>
-            <h1>DASHBOARD EN VIVO</h1>
-          </center>
-        </article>
-      </nav>
+    
+  };
 
-      <section className={styles.sectionTop}>
-        {/* ESCENAS DE VIDEO */}
+  // ------------------ //
+  //  EQUIPO VISITANTE  //
+  // ------------------ //
+  const [informacionTeamTwo, setinformacionTeamTwo] = useState<Equipo>({
+    nombreEquipo: "",
+    logo: null,
+    logoPreview: "",
+    alineacion: "",
+    colorimetria: "",
+    Goles: 0
+  });
 
-        <div className={styles.divEscenas}>
-          <p>ESCENAS</p>
+  const InputChangeTeamTwo = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value, files, type } = e.target;
 
-          <article className={styles.ArticleEscena}>
-            <p>MARCADOR</p>
-            <img src={eye} width="20" />
-          </article>
-          <article className={styles.ArticleEscena}>
-            <p>ALINEACION LOCAL</p>
-            <img src={eye} width="20" />
-          </article>
-          <article className={styles.ArticleEscena}>
-            <p>ALINEACION VISITANTE</p>
-            <img src={eye} width="20" />
-          </article>
-          <article className={styles.ArticleEscena}>
-            <p>TIEMPO MARCADOR</p>
-            <img src={eye} width="20" />
-          </article>
-          <article className={styles.ArticleEscena}>
-            <p>MEDIO TIEMPO</p>
-            <img src={eye} width="20" />
-          </article>
-          <article className={styles.ArticleEscena}>
-            <p>FINAL DEL PARTIDO</p>
-            <img src={eye} width="20" />
-          </article>
-          <article className={styles.ArticleEscena}>
-            <p>TRANSICIÓN</p>
-            <img src={eye} width="20" />
-          </article>
-        </div>
+    if (type === "file" && files?.[0]) {
+      const archivo = files[0];
+      const reader = new FileReader();
 
-        {/* OVERLAY DE VIDEO */}
+      reader.onload = () => {
+        const base64 = reader.result as string;
 
-        {/* <div className={styles.divOverlay}>
-            <Overlay />
-          </div> */}
-        <div className={styles.divOverlay}>
-          {/* <h1 style={{ color: "red" }}>PRUEBA OVERLAY</h1> */}
-          <Overlay />
-          {/* <Components /> */}
-        </div>
+        setinformacionTeamTwo((prev) => ({
+          ...prev,
+          logo: archivo,
+          logoPreview: base64,
+        }));
+      };
 
-        {/* EXTRAS DE ESCENAS */}
+      reader.readAsDataURL(archivo);
 
-        <div className={styles.divExtras}>
-          <section className={styles.sectionExtras}>
-            <div className={styles.contenedorExtras}>
-              <article className={styles.titleExtras}>
-                <img src={time} width="40" />
-                <p>TIEMPO DEL PARTIDO</p>
+      return;
+    }
+
+    setinformacionTeamTwo((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const [cantidadJugadoresTeamTwo, setcantidadJugadoresTeamTwo] = useState(0);
+
+  const changeCantidadTeamoTwo = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+
+    setcantidadJugadoresTeamTwo(Number(value));
+    // setbuttonTeamTwo(false);
+  };
+
+  // SelectChange guarda informacion del select de alineación
+  const SelectChangeTeamTwo = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setinformacionTeamTwo((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const [datosJugadoresTeamTwo, setDatosJugadoresTeamTwo] = useState<Jugador[]>([]);
+
+  const guardarNombreTeamTwo = (
+    index: number,
+    campo: "nombre" | "numero" | "tipo",
+    valor: string,
+  ) => {
+    setDatosJugadoresTeamTwo((prev) => {
+      const jugadores = [...prev];
+
+      if (!jugadores[index]) {
+        jugadores[index] = {
+          nombre: "",
+          numero: "",
+          tipo: "",
+        };
+      }
+
+      jugadores[index][campo] = valor;
+
+      return jugadores;
+    });
+  };
+
+  // Boton para enviar mensaje a overlay
+  const Onclick2 = () => {
+    
+    if (
+      informacionTeamTwo.nombreEquipo &&
+      informacionTeamTwo.logoPreview &&
+      informacionTeamTwo.colorimetria &&
+      informacionTeamTwo.alineacion &&
+      cantidadJugadoresTeamTwo > 0 &&
+      datosJugadoresTeamTwo.length > 0
+    ) {
+      
+      setalineacionesVisit(false);
+      setVisitante(false);
+    } else {
+      console.log("complete los campos");
+    }
+  };
+
+  const [alineacionesVisit, setalineacionesVisit] = useState(true);
+  const [visitante, setVisitante] = useState(true);
+
+  
+  // ALINEACIONES DE AMBOS EQUIPOS
+
+  const [alineaciones, setAlineaciones] = useState(true);
+  const [local, setlocal] = useState(true);
+
+  // funciones para arrastar jugadores
+
+  const startDrag = (evt: React.DragEvent<HTMLDivElement>, item: Jugador) => {
+    evt.dataTransfer.setData("itemID", item.numero);
+    console.log(item);
+  };
+
+  const draggingOver = (evt: React.DragEvent<HTMLElement>) => {
+    evt.preventDefault();
+  };
+
+  const drop = (evt: React.DragEvent<HTMLElement>, position: string) => {
+    evt.preventDefault();
+
+    const itemID = evt.dataTransfer.getData("itemID");
+
+    setDatosJugadores((prev) =>
+      prev.map((jugador) =>
+        jugador.numero === itemID ? { ...jugador, position } : jugador,
+      ),
+    );
+
+    
+  };
+
+  const dropVisit = (evt: React.DragEvent<HTMLElement>, position: string) => {
+    evt.preventDefault();
+
+    const itemID = evt.dataTransfer.getData("itemID");
+
+    setDatosJugadoresTeamTwo((prev) =>
+      prev.map((jugador) =>
+        jugador.numero === itemID ? { ...jugador, position } : jugador,
+      ),
+    );
+
+    
+  };
+
+  const filasAlineacion = informacionTeamOne.alineacion.split("-").map(Number);
+  const filasAlineacion2 = informacionTeamTwo.alineacion.split("-").map(Number);
+
+  // BANDERA PARA CONTROLAR VISTA
+
+  const [bandera,setBandera] = useState(1);
+
+  if (bandera === 1) {
+    return (
+      <div className={style.secciones}>
+        {local && (
+          <section className={style.seccionDatos}>
+            <div className={style.seccionD2}>
+              <article
+                className={style.articleSeccion}
+                id={style.nombreEQUIPOLOCAL}
+              >
+                <p>ESCRIBE EL NOMBRE DEL EQUIPO LOCAL</p>
+                <input
+                  className={style.inputSeccion}
+                  type="text"
+                  maxLength={3}
+                  name="nombreEquipo"
+                  onChange={InputChange}
+                />
               </article>
-              <article className={styles.contenidoExtras}>
-                <p>45:00</p>
-                <button className={styles.buttonContenedorExtras}>
-                  <img src={play} width="30" />
-                </button>
+
+              <article
+                className={style.articleSeccion}
+                id={style.alineacionEQUIPOLOCAL}
+              >
+                <p>ALINEACIÓN</p>
+                <select
+                  name="alineacion"
+                  onChange={SelectChange}
+                  className={style.inputSeccion}
+                >
+                  <option></option>
+                  <option value="4-4-2">4-4-2</option>
+                  <option value="5-3-1">5-3-1</option>
+                  <option value="3-4-1-2">3-4-1-2</option>
+                </select>
+              </article>
+
+              <article
+                className={style.articleSeccion}
+                id={style.logoEQUIPOLOCAL}
+              >
+                <p>SUBIR ARCHIVO DE IMAGEN DEL LOGO</p>
+                <input
+                  className={style.inputSeccion}
+                  type="file"
+                  accept="image/*"
+                  name="logo"
+                  onChange={InputChange}
+                />
               </article>
             </div>
 
-            <div className={styles.contenedorExtras}>
-              <article className={styles.titleExtras}>
-                <img src={timeExtra} width="40" />
-                <p>TIEMPO AGREGADO</p>
+            <div className={style.seccionD2}>
+              <article
+                className={style.articleSeccion}
+                id={style.colorEQUIPOLOCAL}
+              >
+                <p>COLOR</p>
+                <input
+                  name="colorimetria"
+                  type="color"
+                  value={informacionTeamOne.colorimetria}
+                  onChange={InputChange}
+                />
               </article>
-              <article className={styles.contenidoExtras}>
-                <p>45:00</p>
-                <button className={styles.buttonContenedorExtras}>
-                  <img src={play} width="30" />
-                </button>
-              </article>
-            </div>
 
-            <div className={styles.contenedorExtras}>
-              <article className={styles.titleExtras}>
-                <img src={vinculo} width="35" />
-                <p>VÍNCULO OBS</p>
-              </article>
-              <article className={styles.contenidoExtras}>
-                <button className={styles.contentVinculo}>
-                  COPIAR VINCULO OBS
-                  <div className={styles.botonInterno}>
-                    <img src={vinculo} width="30" />
-                  </div>
-                </button>
-              </article>
-            </div>
+              <article
+                className={style.articleSeccionJugadores}
+                id={style.jugadoresEQUIPOLOCAL}
+              >
+                <article className={style.titleArticleSeccion}>
+                  <p>CANTIDAD DE JUGADORES</p>
 
-            <div className={styles.contenedorExtras}>
-              <article className={styles.titleExtras}>
-                <img src={penal} width="50" />
-                <p>MARCADOR DE PENALES</p>
+                  <input
+                    type="number"
+                    max={22}
+                    onChange={changeCantidad}
+                    className={style.inputSeccion}
+                    style={{ width: 100 }}
+                  />
+                </article>
+
+                <hr />
+
+                <section className={style.modalTeam}>
+                  {Array.from({
+                    length: Number(cantidadJugadores),
+                  }).map((_, index) => (
+                    <article key={index}>
+                      <input
+                        className={style.inputSeccion}
+                        type="text"
+                        placeholder={`Nombre Jugador ${index + 1}`}
+                        name={`Jugador ${index + 1}`}
+                        onChange={(e) =>
+                          guardarNombre(index, "nombre", e.target.value)
+                        }
+                        style={{ width: 700 }}
+                      />
+                      <input
+                        type="text"
+                        // className={style.numberPlayer}
+                        style={{
+                          width: 70,
+                          margin: 5,
+                          backgroundColor: "#111B24",
+                        }}
+                        className={style.inputSeccion}
+                        name={`Numero jugador ${index + 1}`}
+                        placeholder="22"
+                        onChange={(e) =>
+                          guardarNombre(index, "numero", e.target.value)
+                        }
+                      />
+                      <select
+                        className={style.inputSeccion}
+                        style={{ width: 150, backgroundColor: "#111B24" }}
+                        name={`tipo ${index + 1}`}
+                        onChange={(e) =>
+                          guardarNombre(index, "tipo", e.target.value)
+                        }
+                      >
+                        <option value="">ELIGE OPCION</option>
+                        <option value="1">TITULAR</option>
+                        <option value="0">RESERVA</option>
+                      </select>
+                    </article>
+                  ))}
+                </section>
               </article>
-              <article className={styles.contenidoExtras}>
-                <button className={styles.contentPenales}>
-                  AGREGAR MARCADOR DE PENALES
-                  <div className={styles.botonInterno}>
-                    <img src={play} width="20" />
-                  </div>
-                </button>
-              </article>
+              <button
+                className={
+                  informacionTeamOne.nombreEquipo &&
+                  informacionTeamOne.logoPreview &&
+                  informacionTeamOne.colorimetria &&
+                  informacionTeamOne.alineacion &&
+                  cantidadJugadores > 0 &&
+                  datosJugadores.length > 0
+                    ? style.button
+                    : style.button_desactive
+                }
+                onClick={Onclick}
+              >
+                SIGUIENTE
+              </button>
             </div>
           </section>
-        </div>
-      </section>
+        )}
+        {!alineaciones && (
+          <section className={style.alineacionesTitulares}>
+            <div className={style.alineacionCentral}>
+              <div className={style.contenedorAlineacion}>
+                <center>
+                  <p>AJUSTE DE ALINEACION {informacionTeamOne.alineacion}</p>
+                </center>
+                {/* contenedor de cajitas para alineaciones */}
+                <div className={style.alineacion}>
+                  {filasAlineacion.map((cantidad, filaIndex) => (
+                    <div
+                      key={filaIndex}
+                      className={style.fila}
+                      style={{
+                        gridTemplateColumns: `repeat(${cantidad}, 1fr)`,
+                      }}
+                    >
+                      {Array.from({ length: cantidad }).map(
+                        (_, jugadorIndex) => {
+                          const position = `fila_${filaIndex}_posicion_${jugadorIndex}`;
 
-      <section className={styles.sectionBottom}>
-        {/* EQUIPO LOCAL */}
-        <div
-          className={styles.divEquipoLocal}
-          style={{
-            background: `${informacion1.colorimetria}33`,
-            border: `3px solid ${informacion1.colorimetria}`,
-          }}
-        >
-          <div className={styles.titleEquipoLocal}>
-            <img src={informacion1.logoPreview} width="50" />
-            <p>{informacion1.nombreEquipo}</p>
-            <p>0</p>
-          </div>
+                          const jugador = datosJugadores.find(
+                            (jugador) => jugador.position === position,
+                          );
 
-          <div
-            className={styles.JugadoresEquipoLocal}
-            style={{ border: `3px solid ${informacion1.colorimetria}` }}
-          >
-            <div className={styles.divJugadores}>
-              TITULARES
-              {jugadoresPrueba
-                .filter((jugador) => jugador.tipo === "1")
-                .map((jugador, index) => (
-                  <article key={index} className={styles.etiquetaJugador}>
-                    {jugador.numero} {jugador.nombre}
-                  </article>
-                ))}
+                          return (
+                            <article
+                              key={jugadorIndex}
+                              onDragOver={draggingOver}
+                              onDrop={(evt) => drop(evt, position)}
+                            >
+                              {jugador && (
+                                <div className={style.titular}>
+                                  <p>{jugador.nombre}</p>
+                                </div>
+                              )}
+                            </article>
+                          );
+                        },
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
 
-            <div className={styles.divJugadores}>
-              RESERVA
-              {jugadoresPrueba
-                .filter((jugador) => jugador.tipo === "0")
-                .map((jugador, index) => (
-                  <article key={index} className={styles.etiquetaJugador}>
-                    {jugador.numero} {jugador.nombre}
-                  </article>
-                ))}
+            <div className={style.seleccionTitulares}>
+              {/* contenedor de nombres */}
+              <article className={style.contenedorTITULARES}>
+                <p>TITULARES</p>
+                {datosJugadores
+                  .filter((jugador) => jugador.tipo === "1")
+                  .map((jugador, index) => (
+                    <div
+                      key={index}
+                      className={style.titular}
+                      draggable
+                      onDragStart={(evt) => startDrag(evt, jugador)}
+                    >
+                      <p>{jugador.nombre}</p>
+                    </div>
+                  ))}
+              </article>
+              <button
+                className={
+                  datosJugadores
+                    .filter((jugador) => jugador.tipo === "1")
+                    .every((jugador) => jugador.position)
+                    ? style.button
+                    : style.button_desactive
+                }
+                onClick={buttOnTerminarRegistro}
+                style={{ marginTop: 30, width: 350 }}
+              >
+                GUARDAR CAMBIOS
+              </button>
             </div>
-          </div>
-        </div>
+          </section>
+        )}
+      </div>
+    );
+  } else if (bandera === 2) {
+    return (
+      <div className={style.secciones}>
+        {visitante && (
+          <section className={style.seccionDatos}>
+            <div className={style.seccionD2}>
+              <article className={style.articleSeccion}>
+                <p>NOMBRE EQUIPO VISITANTE</p>
+                <input
+                  className={style.inputSeccion}
+                  type="text"
+                  maxLength={3}
+                  name="nombreEquipo"
+                  onChange={InputChangeTeamTwo}
+                />
+              </article>
 
-        {/* EVENTOS RAPIDOS */}
+              <article className={style.articleSeccion}>
+                <p>SELECCIONAR ALINEACIÓN</p>
+                <select
+                  name="alineacion"
+                  className={style.inputSeccion}
+                  onChange={SelectChangeTeamTwo}
+                >
+                  <option></option>
+                  <option value="4-4-2">4-4-2</option>
+                  <option value="5-3-1">5-3-1</option>
+                  <option value="3-4-1-2">3-4-1-2</option>
+                </select>
+              </article>
 
-        <div className={styles.divEventos}>
-          <p className={styles.p}>EVENTOS RÁPIDOS</p>
-
-          <article className={styles.tarjetaAmarilla}>
-            <img src={tarjetaAmarilla} width="50" style={{ margin: "10px" }} />
-            <p>TARJETA AMARILLA</p>
-          </article>
-
-          <article className={styles.tarjetaRoja}>
-            <img src={tarjetaRoja} width="50" style={{ margin: "10px" }} />
-            <p>TARJETA ROJA</p>
-          </article>
-
-          <article className={styles.Cambios}>
-            <img src={cambio} width="40" style={{ margin: "10px" }} />
-            <p>CAMBIO</p>
-          </article>
-
-          <article className={styles.Gol}>
-            <img src={gol} width="50" style={{ margin: "10px" }} />
-            <p>GOL</p>
-          </article>
-        </div>
-
-        {/* EQUIPO VISITANTE */}
-
-        <div
-          className={styles.divEquipoVisitante}
-          style={{
-            background: `${informacion2.colorimetria}33`,
-            border: `3px solid ${informacion2.colorimetria}`,
-          }}
-        >
-          <div className={styles.titleEquipoLocal}>
-            <img src={informacion2.logoPreview} width="50" />
-            <p>{informacion2.nombreEquipo}</p>
-            <p>0</p>
-          </div>
-
-          <div
-            className={styles.JugadoresEquipoVisitante}
-            style={{ border: `3px solid ${informacion2.colorimetria}` }}
-          >
-            <div className={styles.divJugadores}>
-              TITULARES
-              {jugadoresPruebaV
-                .filter((jugador) => jugador.tipo === "1")
-                .map((jugador, index) => (
-                  <article key={index} className={styles.etiquetaJugador}>
-                    {jugador.numero} {jugador.nombre}
-                  </article>
-                ))}
+              <article className={style.articleSeccion}>
+                <p>LOGO EQUIPO VISITANTE</p>
+                <input
+                  className={style.inputSeccion}
+                  type="file"
+                  accept="image/*"
+                  name="logo"
+                  onChange={InputChangeTeamTwo}
+                />
+              </article>
             </div>
 
-            <div className={styles.divJugadores}>
-              RESERVA
-              {jugadoresPruebaV
-                .filter((jugador) => jugador.tipo === "0")
-                .map((jugador, index) => (
-                  <article key={index} className={styles.etiquetaJugador}>
-                    {jugador.numero} {jugador.nombre}
-                  </article>
-                ))}
+            <div className={style.seccionD2}>
+              <article className={style.articleSeccion}>
+                <p>COLOR</p>
+                <input
+                  name="colorimetria"
+                  type="color"
+                  value={informacionTeamTwo.colorimetria}
+                  onChange={InputChangeTeamTwo}
+                />
+              </article>
+
+              <article className={style.articleSeccionJugadores}>
+                <article className={style.titleArticleSeccion}>
+                  <p>CANTIDAD DE JUGADORES</p>
+
+                  <input
+                    type="number"
+                    max={22}
+                    onChange={changeCantidadTeamoTwo}
+                    className={style.inputSeccion}
+                    style={{ width: 100 }}
+                  />
+                </article>
+
+                <hr />
+
+                <section className={style.modalTeam}>
+                  {Array.from({
+                    length: Number(cantidadJugadoresTeamTwo),
+                  }).map((_, index) => (
+                    <article key={index}>
+                      <input
+                        className={style.inputSeccion}
+                        type="text"
+                        placeholder={`Nombre Jugador ${index + 1}`}
+                        name={`Jugador ${index + 1}`}
+                        onChange={(e) =>
+                          guardarNombreTeamTwo(index, "nombre", e.target.value)
+                        }
+                        style={{ width: 700 }}
+                      />
+                      <input
+                        type="text"
+                        style={{
+                          width: 70,
+                          margin: 5,
+                          backgroundColor: "#111B24",
+                        }}
+                        className={style.inputSeccion}
+                        name={`Numero jugador ${index + 1}`}
+                        placeholder="22"
+                        onChange={(e) =>
+                          guardarNombreTeamTwo(index, "numero", e.target.value)
+                        }
+                      />
+                      <select
+                        className={style.inputSeccion}
+                        style={{ width: 150, backgroundColor: "#111B24" }}
+                        name={`tipo ${index + 1}`}
+                        onChange={(e) =>
+                          guardarNombreTeamTwo(index, "tipo", e.target.value)
+                        }
+                      >
+                        <option value="">ELIGE OPCION</option>
+                        <option value="1">TITULAR</option>
+                        <option value="0">RESERVA</option>
+                      </select>
+                    </article>
+                  ))}
+                </section>
+              </article>
+
+              <button
+                className={
+                  informacionTeamTwo.nombreEquipo &&
+                  informacionTeamTwo.logoPreview &&
+                  informacionTeamTwo.colorimetria &&
+                  informacionTeamTwo.alineacion &&
+                  cantidadJugadoresTeamTwo > 0 &&
+                  datosJugadoresTeamTwo.length > 0
+                    ? style.button
+                    : style.button_desactive
+                }
+                onClick={Onclick2}
+              >
+                SIGUIENTE
+              </button>
             </div>
-          </div>
-        </div>
-      </section>
-    </div>
-  );
+          </section>
+        )}
+        {!alineacionesVisit && (
+          <section className={style.alineacionesTitulares}>
+            <div className={style.alineacionCentral}>
+              <div className={style.contenedorAlineacion}>
+                <center>
+                  <p>AJUSTE DE ALINEACION {informacionTeamTwo.alineacion}</p>
+                </center>
+                {/* contenedor de cajitas para alineaciones */}
+                <div className={style.alineacion}>
+                  {filasAlineacion2.map((cantidad, filaIndex) => (
+                    <div
+                      key={filaIndex}
+                      className={style.fila}
+                      style={{
+                        gridTemplateColumns: `repeat(${cantidad}, 1fr)`,
+                      }}
+                    >
+                      {Array.from({ length: cantidad }).map(
+                        (_, jugadorIndex) => {
+                          const position = `fila_${filaIndex}_posicion_${jugadorIndex}`;
+
+                          const jugador = datosJugadoresTeamTwo.find(
+                            (jugador) => jugador.position === position,
+                          );
+
+                          return (
+                            <article
+                              key={jugadorIndex}
+                              onDragOver={draggingOver}
+                              onDrop={(evt) => dropVisit(evt, position)}
+                            >
+                              {jugador && (
+                                <div className={style.titular}>
+                                  <p>{jugador.nombre}</p>
+                                </div>
+                              )}
+                            </article>
+                          );
+                        },
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className={style.seleccionTitulares}>
+              {/* contenedor de nombres */}
+              <article className={style.contenedorTITULARES}>
+                <p>TITULARES</p>
+                {datosJugadoresTeamTwo
+                  .filter((jugador) => jugador.tipo === "1")
+                  .map((jugador, index) => (
+                    <div
+                      key={index}
+                      className={style.titular}
+                      draggable
+                      onDragStart={(evt) => startDrag(evt, jugador)}
+                    >
+                      <p>{jugador.nombre}</p>
+                    </div>
+                  ))}
+              </article>
+              <button
+                className={
+                  datosJugadoresTeamTwo
+                    .filter((jugador) => jugador.tipo === "1")
+                    .every((jugador) => jugador.position)
+                    ? style.button
+                    : style.button_desactive
+                }
+                onClick={buttOnTerminarRegistroVisit}
+                style={{ marginTop: 30, width: 350 }}
+              >
+                TERMINAR REGISTRO
+              </button>
+            </div>
+          </section>
+        )}
+      </div>
+    );
+  }
 }
 
 export default Components;

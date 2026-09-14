@@ -1,4 +1,4 @@
-import Style from "./TeamOne.module.css";
+import style from "./Overlay.module.css";
 import { socket } from "../sockets/sockets";
 import { useState, useEffect } from "react";
 
@@ -10,6 +10,7 @@ function Overlay() {
     logoPreview: string;
     alineacion: string;
     colorimetria: string;
+    Goles: Number;
   }
 
   //   informacion del equipo local
@@ -19,6 +20,7 @@ function Overlay() {
     logoPreview: "",
     alineacion: "",
     colorimetria: "",
+    Goles: 0,
   });
   //  informacion del equipo visitante
   const [mensaje2, setMensaje2] = useState<mensaje>({
@@ -27,6 +29,7 @@ function Overlay() {
     logoPreview: "",
     alineacion: "",
     colorimetria: "",
+    Goles: 0,
   });
 
   // interface de los jugadores de ambos equipos
@@ -39,14 +42,11 @@ function Overlay() {
   // const [datosJugadores, setDatosJugadores] = useState<Jugador[]>([]);
   // //   datos jugadores equipo visitante
   // const [datosJugadores2, setDatosJugadores2] = useState<Jugador[]>([]);
-  
-
-  
 
   useEffect(() => {
     socket.on("nuevo-dato-overlay", (data) => {
-      console.log("🔥 EVENTO LOCAL COMPLETO:", data);
-      console.log("🔥 NOMBRE LOCAL:", data.mensaje.nombreEquipo);
+      // console.log("🔥 EVENTO LOCAL COMPLETO:", data);
+      // console.log("🔥 NOMBRE LOCAL:", data.mensaje.nombreEquipo);
 
       setMensaje(data.mensaje);
       // setDatosJugadores(data.jugadoresLocal);
@@ -55,46 +55,68 @@ function Overlay() {
 
   useEffect(() => {
     socket.on("nuevo-dato-overlay-equipo-visitante", (data) => {
-      console.log("🔥 EVENTO VISITANTE COMPLETO:", data);
-      console.log("🔥 NOMBRE VISITANTE:", data.mensaje.nombreEquipo);
+      // console.log("🔥 EVENTO VISITANTE COMPLETO:", data);
+      // console.log("🔥 NOMBRE VISITANTE:", data.mensaje.nombreEquipo);
 
       setMensaje2(data.mensaje);
       // setDatosJugadores2(data.jugadoresVisitante);
     });
   }, []);
 
+
+  // ACTUALIZAR GOLES
+  const [goles, setGoles] = useState(0);
+  const [goles2, setGoles2] = useState(0);
+
   useEffect(() => {
-    console.log("🟢 OVERLAY MONTADO");
+    const recibirGoles = (data: { nombreEquipo: string; goles: number }) => {
+      setGoles(data.goles);
+    };
+
+    socket.on("nuevoDatoGoles", recibirGoles);
 
     return () => {
-      console.log("🔴 OVERLAY DESMONTADO");
+      socket.off("nuevoDatoGoles", recibirGoles);
     };
   }, []);
 
   useEffect(() => {
-    console.log("📌 ESTADO LOCAL:", mensaje);
-  }, [mensaje]);
+    const recibirGoles2 = (data: { nombreEquipo: string; goles: number }) => {
+      setGoles2(data.goles);
+    };
 
-  useEffect(() => {
-    console.log("📌 ESTADO VISITANTE:", mensaje2);
-  }, [mensaje2]);
+    socket.on("nuevoDatoGolesV", recibirGoles2);
+
+    return () => {
+      socket.off("nuevoDatoGolesV", recibirGoles2);
+    };
+  }, []);
+
+  // useEffect(() => {
+  //   console.log("🟢 OVERLAY MONTADO");
+
+  //   return () => {
+  //     console.log("🔴 OVERLAY DESMONTADO");
+  //   };
+  // }, []);
+
+  // useEffect(() => {
+  //   console.log("📌 ESTADO LOCAL:", mensaje);
+  // }, [mensaje]);
+
+  // useEffect(() => {
+  //   console.log("📌 ESTADO VISITANTE:", mensaje2);
+  // }, [mensaje2]);
 
   return (
     <div>
-      <article className={Style.marcadorEquipo}>
-        <img src={mensaje.logoPreview} width={120} />
-        <p
-          className={Style.nombreprueba}
-          // style={{
-          //   opacity: instrucciones,
-          // }}
-        >
-          {mensaje.nombreEquipo} VS {mensaje2.nombreEquipo}
+      <article className={style.marcadorEquipo}>
+        <img src={mensaje.logoPreview} />
+        <p className={style.nombreprueba}>
+          {mensaje.nombreEquipo} {goles} VS {goles2} {mensaje2.nombreEquipo}
         </p>
-        <img src={mensaje2.logoPreview} width={120} />
+        <img src={mensaje2.logoPreview} />
       </article>
-
-      
     </div>
   );
 }

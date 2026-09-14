@@ -14,6 +14,7 @@ export function setupSocket(server: HttpServer) {
     logoPreview: string;
     alineacion: string;
     colorimetria: string;
+    Goles: number;
   }
 
   interface Jugador {
@@ -25,8 +26,8 @@ export function setupSocket(server: HttpServer) {
 
   let jugadoresLocal: Jugador[] = [];
   let jugadoresVisitante: Jugador[] = [];
-  let informacionLocal: Equipo[] = [];
-  let informacionVisitante: Equipo[] = [];
+  let informacionLocal: Equipo;
+  let informacionVisitante: Equipo;
 
   io.on("connection", (socket) => {
     // cliente conectado
@@ -43,10 +44,6 @@ export function setupSocket(server: HttpServer) {
     // });
     // --------------------------------------------------
 
-
-
-
-
     // enviar informacion y datos de jugadores equipo local al overlay
     socket.on("actualizar-overlay", (data) => {
       console.log(data);
@@ -61,14 +58,48 @@ export function setupSocket(server: HttpServer) {
       socket.emit("jugadores-actuales", jugadoresLocal);
     });
     socket.on("obtener-info-local", () => {
-      socket.emit("info-local",informacionLocal);
-    })
+      socket.emit("info-local", informacionLocal);
+    });
 
+    // socket.on("actualizarGoles", (data) => {
+    //   if(data.nombreEquipo === informacionLocal.nombreEquipo){
+    //     informacionLocal.Goles = data.goles;
 
+    //     io.emit("nuevoDatoGoles", {
+    //     nombreEquipo: data.nombreEquipo,
+    //     goles: informacionLocal.Goles,
+    //   });
+    //   } else if(data.nombreEquipo === informacionVisitante.nombreEquipo){
+    //     informacionVisitante.Goles = data.goles;
 
+    //     io.emit("nuevoDatoGolesV", {
+    //     nombreEquipo: data.nombreEquipo,
+    //     goles: informacionVisitante.Goles,
+    //   });
+    //   }
 
+    // });
+    socket.on("actualizarGoles", (data) => {
+      console.log("DATOS DE GOLES RECIBIDOS:", data);
+      console.log("INFORMACION LOCAL:", informacionLocal);
+      console.log("INFORMACION VISITANTE:", informacionVisitante);
 
+      if (data.nombreEquipo === informacionLocal?.nombreEquipo) {
+        informacionLocal.Goles = data.goles;
 
+        io.emit("nuevoDatoGoles", {
+          nombreEquipo: data.nombreEquipo,
+          goles: informacionLocal.Goles,
+        });
+      } else if (data.nombreEquipo === informacionVisitante?.nombreEquipo) {
+        informacionVisitante.Goles = data.goles;
+
+        io.emit("nuevoDatoGolesV", {
+          nombreEquipo: data.nombreEquipo,
+          goles: informacionVisitante.Goles,
+        });
+      }
+    });
 
     // enviar informacion y datos de jugadores equipo visitante al overlay
     socket.on("actualizar-overlay-equipo-visitante", (data) => {
@@ -77,7 +108,6 @@ export function setupSocket(server: HttpServer) {
       jugadoresVisitante = data.jugadoresVisitante;
       informacionVisitante = data.mensaje;
 
-      
       io.emit("nuevo-dato-overlay-equipo-visitante", data);
     });
 
@@ -86,12 +116,8 @@ export function setupSocket(server: HttpServer) {
     });
 
     socket.on("obtener-info-visitante", () => {
-      socket.emit("info-visitante",informacionVisitante);
-    })
-
-
-
-
+      socket.emit("info-visitante", informacionVisitante);
+    });
 
     // enviar instruccion de opacidad del marcador al overlay
 

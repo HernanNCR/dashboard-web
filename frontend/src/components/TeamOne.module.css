@@ -56,12 +56,7 @@ select {
   color: white;
 }
 
-.nombreprueba {
-  color: red;
-  font-size: 80px;
-  font-weight: 600;
-  opacity: 1;
-}
+
 .botonprueba {
   color: aliceblue;
   background-color: blue;
@@ -72,10 +67,7 @@ select {
   display: flex;
 }
 
-.marcadorEquipo {
-  display: flex;
-  flex-direction: row;
-}
+
 
 /*  */
 
@@ -157,12 +149,6 @@ select {
   padding: 25px 35px;
 }
 
-/* .numberPlayer{
-    width: 70px;
-    height: 55px;
-    text-align: center;
-    margin: 5px;
-} */
 
 input[type="color"] {
   width: 150px;
@@ -289,3 +275,4 @@ input[type="color"] {
   gap: 20px;
   justify-items: center;
 }
+

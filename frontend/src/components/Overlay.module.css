@@ -1,0 +1,20 @@
+.marcadorEquipo {
+  display: flex;
+  flex-direction: row;
+  /* background-color: blue; */
+  justify-content: center;
+}
+
+.marcadorEquipo img{
+    width: 70px;
+    height: 70px;
+    margin: 0px 10px;
+}
+
+.nombreprueba {
+  color: white;
+  font-size: 45px;
+  font-weight: 600;
+  opacity: 1;
+}
+
