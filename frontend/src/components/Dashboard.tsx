@@ -1,5 +1,5 @@
 import { socket } from "../sockets/sockets";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import styles from "./Dashboard.module.css";
 import Overlay from "./Overlay";
 
@@ -23,6 +23,7 @@ function Dashboard() {
     alineacion: string;
     colorimetria: string;
     Goles: number;
+    Jugadores: {};
   }
 
   // interface de los jugadores de ambos equipos
@@ -34,7 +35,7 @@ function Dashboard() {
 
   // ------LOCAL----------
   // varianes de jugadores y de equipo
-  const [jugadoresPrueba, setJugadoresPrueba] = useState<Jugador[]>([]);
+  const [jugadoresPrueba, setJugadoresPrueba] = useState<Jugador[]>([]); 
   const [informacion1, setinformacion1] = useState<Equipo>({
     nombreEquipo: "",
     logo: null,
@@ -42,6 +43,7 @@ function Dashboard() {
     alineacion: "",
     colorimetria: "",
     Goles: 0,
+    Jugadores: jugadoresPrueba,
   });
 
   useEffect(() => {
@@ -74,6 +76,7 @@ function Dashboard() {
 
   // ---------VISITANTE-------------
 
+  const [jugadoresPruebaV, setJugadoresPruebaV] = useState<Jugador[]>([]);
   const [informacion2, setinformacion2] = useState<Equipo>({
     nombreEquipo: "",
     logo: null,
@@ -81,8 +84,8 @@ function Dashboard() {
     alineacion: "",
     colorimetria: "",
     Goles: 0,
+    Jugadores: jugadoresPruebaV,
   });
-  const [jugadoresPruebaV, setJugadoresPruebaV] = useState<Jugador[]>([]);
 
   useEffect(() => {
     // recuperar informacion de jugadores visitante
@@ -116,25 +119,201 @@ function Dashboard() {
     setmodalEventos(false);
   };
 
-  // const FuncionGol = (equipo: Equipo) => {
-  //   equipo.Goles += 1;
-  //   // console.log(equipo.nombreEquipo, "tiene", equipo.Goles, "goles totales");
-  //   setmodalEventos(true);
-
-  //   socket.emit("actualizarGoles", {
-  //     mensaje: equipo,
-  //   });
-  // };
   const FuncionGol = (equipo: Equipo) => {
-  equipo.Goles += 1;
+    equipo.Goles += 1;
 
-  setmodalEventos(true);
+    setmodalEventos(true);
 
-  socket.emit("actualizarGoles", {
-    nombreEquipo: equipo.nombreEquipo,
-    goles: equipo.Goles,
+    socket.emit("actualizarGoles", {
+      nombreEquipo: equipo.nombreEquipo,
+      goles: equipo.Goles,
+    });
+  };
+
+  // Tarjeta amarilla
+  const [tarjetaAmarillaC, settarjetaAmarilla] = useState(true);
+  // const [tarjetaRojaC, settarjetRoja] = useState(true);
+  const FuncionTarjeta = () => {
+    settarjetaAmarilla(false);
+  };
+
+  const funcionND = () => {};
+
+  const funcionTA = (jugador: String) => {
+    console.log(jugador, "tiene amarilla");
+    settarjetaAmarilla(true);
+  };
+  // Tarjeta Roja
+  const [tarjetaRojaC, settarjetRoja] = useState(true);
+  const FuncionTarjetaR = () => {
+    settarjetRoja(false);
+  };
+
+  const funcionTR = (jugador: String) => {
+    console.log(jugador, "tiene roja");
+    settarjetRoja(true);
+  };
+
+  // Cambios
+
+  const [cambioVista, setcambioVista] = useState(true);
+  const cambioJugadorVISTA = () => {
+    setcambioVista(false);
+  };
+
+  const [cambioLT, setcambioLT] = useState(true);
+  const [cambioLR, setcambioLR] = useState(true);
+
+  const [cambioVT, setcambioVT] = useState(true);
+  const [cambioVR,setcambioVR] = useState(true);
+  const cambioJugador = (equipo: Equipo) => {
+    console.log(equipo);
+    setcambioVista(true);
+
+    if (equipo.nombreEquipo === informacion1.nombreEquipo) {
+      setcambioLT(false);
+    } else if (equipo.nombreEquipo === informacion2.nombreEquipo) {
+      setcambioVT(false);
+    }
+  };
+
+  
+  const cambioJugador1 = useRef({
+    nombreEquipo: "",
+    nombreJugador: "",
+    tipo: "",
   });
-};
+
+  const cambioJugador2 = useRef({
+    nombreEquipo: "",
+    nombreJugador: "",
+    tipo: "",
+  });
+
+  const guardarInformacionJugador1 = (equipo: Equipo, jugador: Jugador) => {
+    cambioJugador1.current = {
+      nombreEquipo: equipo.nombreEquipo,
+      nombreJugador: jugador.nombre,
+      tipo: jugador.tipo,
+    };
+
+    if (equipo.nombreEquipo === informacion1.nombreEquipo) {
+      // cambio para dejar de ver titulares local
+      setcambioLT(true);
+      // cambio para ver reservas local
+      setcambioLR(false);
+    } else if (equipo.nombreEquipo === informacion2.nombreEquipo) {
+      // cambio para dejar de ver titulares visitante
+      setcambioVT(true);
+      // cambio para ver reservas visitante
+      setcambioVR(false);
+    }
+  };
+
+  const guardarInformacionJugador2 = (equipo: Equipo, jugador: Jugador) => {
+    cambioJugador2.current = {
+      nombreEquipo: equipo.nombreEquipo,
+      nombreJugador: jugador.nombre,
+      tipo: jugador.tipo,
+    };
+
+    cambiarJugadoresdeTipoJugador();
+  };
+
+  const cambiarJugadoresdeTipoJugador = () => {
+    console.log("JUGADOR 1:", cambioJugador1.current);
+    console.log("JUGADOR 2:", cambioJugador2.current);
+
+
+    if (cambioJugador1.current.nombreEquipo === informacion1.nombreEquipo) {
+      if (
+      cambioJugador1.current.nombreEquipo ===
+      cambioJugador2.current.nombreEquipo
+    ) {
+      setJugadoresPrueba((prev) =>
+        prev.map((jugador) => {
+          if (jugador.nombre === cambioJugador1.current.nombreJugador) {
+            console.log(
+              "🔄 CAMBIANDO A RESERVA:",
+              jugador.nombre,
+              jugador.tipo,
+              "→ 0",
+            );
+
+            return {
+              ...jugador,
+              tipo: "0",
+            };
+          }
+
+          if (jugador.nombre === cambioJugador2.current.nombreJugador) {
+            console.log(
+              "🔄 CAMBIANDO A TITULAR:",
+              jugador.nombre,
+              jugador.tipo,
+              "→ 1",
+            );
+
+            return {
+              ...jugador,
+              tipo: "1",
+            };
+          }
+
+          return jugador;
+        }),
+      );
+      setcambioLR(true);
+    } else {
+      console.log("❌ Los jugadores pertenecen a equipos diferentes");
+    }
+     
+    } else if (cambioJugador2.current.nombreEquipo === informacion2.nombreEquipo) {
+      if (
+      cambioJugador1.current.nombreEquipo ===
+      cambioJugador2.current.nombreEquipo
+    ) {
+      setJugadoresPruebaV((prev) =>
+        prev.map((jugador) => {
+          if (jugador.nombre === cambioJugador1.current.nombreJugador) {
+            console.log(
+              "🔄 CAMBIANDO A RESERVA:",
+              jugador.nombre,
+              jugador.tipo,
+              "→ 0",
+            );
+
+            return {
+              ...jugador,
+              tipo: "0",
+            };
+          }
+
+          if (jugador.nombre === cambioJugador2.current.nombreJugador) {
+            console.log(
+              "🔄 CAMBIANDO A TITULAR:",
+              jugador.nombre,
+              jugador.tipo,
+              "→ 1",
+            );
+
+            return {
+              ...jugador,
+              tipo: "1",
+            };
+          }
+
+          return jugador;
+        }),
+      );
+      setcambioVR(true);
+    } else {
+      console.log("❌ Los jugadores pertenecen a equipos diferentes");
+    }
+    }
+    
+    
+  };
 
   return (
     <div className={styles.body}>
@@ -279,8 +458,30 @@ function Dashboard() {
               TITULARES
               {jugadoresPrueba
                 .filter((jugador) => jugador.tipo === "1")
-                .map((jugador, index) => (
-                  <article key={index} className={styles.etiquetaJugador}>
+                .map((jugador) => (
+                  <article
+                    key={jugador.numero}
+                    className={
+                      !cambioLT
+                        ? styles.etiquetaJugadorCambio
+                        : !tarjetaAmarillaC
+                          ? styles.etiquetaJugadorTA
+                          : !tarjetaRojaC
+                            ? styles.etiquetaJugadorTR
+                            : styles.etiquetaJugador
+                    }
+                    onClick={
+                      !cambioLT
+                        ? () => {
+                            guardarInformacionJugador1(informacion1, jugador);
+                          }
+                        : !tarjetaAmarillaC
+                          ? () => funcionTA(jugador.nombre)
+                          : !tarjetaRojaC
+                            ? () => funcionTR(jugador.nombre)
+                            : funcionND
+                    }
+                  >
                     {jugador.numero} {jugador.nombre}
                   </article>
                 ))}
@@ -290,8 +491,21 @@ function Dashboard() {
               RESERVA
               {jugadoresPrueba
                 .filter((jugador) => jugador.tipo === "0")
-                .map((jugador, index) => (
-                  <article key={index} className={styles.etiquetaJugador}>
+                .map((jugador) => (
+                  <article
+                    key={jugador.numero}
+                    className={
+                      !cambioLR
+                        ? styles.etiquetaJugadorCambio
+                        : styles.etiquetaJugador
+                    }
+                    onClick={
+                      !cambioLR
+                        ? () =>
+                            guardarInformacionJugador2(informacion1, jugador)
+                        : funcionND
+                    }
+                  >
                     {jugador.numero} {jugador.nombre}
                   </article>
                 ))}
@@ -301,11 +515,52 @@ function Dashboard() {
 
         {/* EVENTOS RAPIDOS */}
 
-        {modalEventos ? (
+        {!cambioVista ? (
+          <div className={styles.divEventos}>
+            <p className={styles.p}>ELEGIR EQUIPO DEL CAMBIO</p>
+
+            <article
+              style={{
+                background: `${informacion1.colorimetria}33`,
+                border: `3px solid ${informacion1.colorimetria}`,
+                color: `${informacion1.colorimetria}`,
+                cursor: "pointer",
+              }}
+              onClick={() => cambioJugador(informacion1)}
+            >
+              <img
+                src={informacion1.logoPreview}
+                width="50"
+                style={{ margin: "10px" }}
+              />
+              <p>{informacion1.nombreEquipo}</p>
+            </article>
+
+            <article
+              style={{
+                background: `${informacion2.colorimetria}33`,
+                border: `3px solid ${informacion2.colorimetria}`,
+                color: `${informacion2.colorimetria}`,
+                cursor: "pointer",
+              }}
+              onClick={() => cambioJugador(informacion2)}
+            >
+              <img
+                src={informacion2.logoPreview}
+                width="50"
+                style={{ margin: "10px" }}
+              />
+              <p>{informacion2.nombreEquipo}</p>
+            </article>
+          </div>
+        ) : modalEventos ? (
           <div className={styles.divEventos}>
             <p className={styles.p}>EVENTOS RÁPIDOS</p>
 
-            <article className={styles.tarjetaAmarilla}>
+            <article
+              className={styles.tarjetaAmarilla}
+              onClick={() => FuncionTarjeta()}
+            >
               <img
                 src={tarjetaAmarilla}
                 width="50"
@@ -314,12 +569,18 @@ function Dashboard() {
               <p>TARJETA AMARILLA</p>
             </article>
 
-            <article className={styles.tarjetaRoja}>
+            <article
+              className={styles.tarjetaRoja}
+              onClick={() => FuncionTarjetaR()}
+            >
               <img src={tarjetaRoja} width="50" style={{ margin: "10px" }} />
               <p>TARJETA ROJA</p>
             </article>
 
-            <article className={styles.Cambios}>
+            <article
+              className={styles.Cambios}
+              onClick={() => cambioJugadorVISTA()}
+            >
               <img src={cambio} width="40" style={{ margin: "10px" }} />
               <p>CAMBIO</p>
             </article>
@@ -393,7 +654,29 @@ function Dashboard() {
               {jugadoresPruebaV
                 .filter((jugador) => jugador.tipo === "1")
                 .map((jugador, index) => (
-                  <article key={index} className={styles.etiquetaJugador}>
+                  <article
+                    key={index}
+                    className={
+                      !cambioVT
+                        ? styles.etiquetaJugadorCambio
+                        : !tarjetaAmarillaC
+                          ? styles.etiquetaJugadorTA
+                          : !tarjetaRojaC
+                            ? styles.etiquetaJugadorTR
+                            : styles.etiquetaJugador
+                    }
+                    onClick={
+                      !cambioVT
+                        ? () => {
+                            guardarInformacionJugador1(informacion2, jugador);
+                          }
+                        : !tarjetaAmarillaC
+                          ? () => funcionTA(jugador.nombre)
+                          : !tarjetaRojaC
+                            ? () => funcionTR(jugador.nombre)
+                            : funcionND
+                    }
+                  >
                     {jugador.numero} {jugador.nombre}
                   </article>
                 ))}
@@ -403,8 +686,21 @@ function Dashboard() {
               RESERVA
               {jugadoresPruebaV
                 .filter((jugador) => jugador.tipo === "0")
-                .map((jugador, index) => (
-                  <article key={index} className={styles.etiquetaJugador}>
+                .map((jugador) => (
+                  <article
+                    key={jugador.numero}
+                    className={
+                      !cambioVR
+                        ? styles.etiquetaJugadorCambio
+                        : styles.etiquetaJugador
+                    }
+                    onClick={
+                      !cambioVR
+                        ? () =>
+                            guardarInformacionJugador2(informacion2, jugador)
+                        : funcionND
+                    }
+                  >
                     {jugador.numero} {jugador.nombre}
                   </article>
                 ))}

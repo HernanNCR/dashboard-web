@@ -238,6 +238,42 @@
   cursor: pointer;
 }
 
+.etiquetaJugadorTA{
+  width: 80%;
+  height: auto;
+  border-radius: 7px;
+  background-color: #18242F;
+  margin: 5px 10px;
+  padding: 15px 30px;
+  font-size: 17px;
+  cursor: pointer;
+  box-shadow: 0px 0px 10px yellow;
+}
+
+.etiquetaJugadorTR{
+  width: 80%;
+  height: auto;
+  border-radius: 7px;
+  background-color: #18242F;
+  margin: 5px 10px;
+  padding: 15px 30px;
+  font-size: 17px;
+  cursor: pointer;
+  box-shadow: 0px 0px 10px rgb(255, 0, 0);
+}
+
+.etiquetaJugadorCambio{
+  width: 80%;
+  height: auto;
+  border-radius: 7px;
+  background-color: #18242F;
+  margin: 5px 10px;
+  padding: 15px 30px;
+  font-size: 17px;
+  cursor: pointer;
+  box-shadow: 0px 0px 10px rgb(0, 26, 255);
+}
+
 
 /* conetenedor de eventos */
 .sectionBottom .divEventos{
@@ -266,6 +302,7 @@
   display: flex;
   align-items: center;
 }
+
 
 .tarjetaAmarilla{
   background-color: rgba(242, 255, 0, 0.2);
