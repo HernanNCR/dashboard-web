@@ -10,7 +10,7 @@ Frontend:
 - TypeScript
 - Vite
 
-Backend (próximamente):
+Backend:
 - Node.js
 - Express
 - Socket.IO
